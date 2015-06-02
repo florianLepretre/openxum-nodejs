@@ -247,5 +247,16 @@
 	"Making a move": "Making a move",
 	"Placing a marble and removing a board piece": "Placing a marble and removing a board piece",
 	"Capturing marbles": "Capturing marbles",
-	"You must try to capture either": "You must try to capture either"
+	"You must try to capture either": "You must try to capture either",
+	"Place - turn - win by five in a row!": "Place - turn - win by five in a row!",
+	"The game starts with an empty game board. The game board consists of the four separate boards.": "The game starts with an empty game board. The game board consists of the four separate boards.",
+	"The starting player places a marble in a socket of his or her choice.": "The starting player places a marble in a socket of his or her choice.",
+	"After placing a marble the player turns any one of the four boards one notch (90 degrees) clock- or counter clock- wise.": "After placing a marble the player turns any one of the four boards one notch (90 degrees) clock- or counter clock- wise.",
+	"A board, not necessarily the one on which the marble has been placed, must be turned each move.": "A board, not necessarily the one on which the marble has been placed, must be turned each move.",
+	"Then the second player does the same, i.e. places a marble and turns a board. So on and so forth.": "Then the second player does the same, i.e. places a marble and turns a board. So on and so forth.",
+	"The first player to get five marbles in a row wins!": "The first player to get five marbles in a row wins!",
+	"The row can be horizontal, vertical or diagonal and run over two or three boards.": "The row can be horizontal, vertical or diagonal and run over two or three boards.",
+	"If a player gets five in a row when placing a marble he or she does not need to turn a board.": "If a player gets five in a row when placing a marble he or she does not need to turn a board.",
+	"If all the sockets have been filled without any player getting five in a row the game is a draw.": "If all the sockets have been filled without any player getting five in a row the game is a draw.",
+	"If both players get five in a row as a player turns a board the game is also a draw.": "If both players get five in a row as a player turns a board the game is also a draw."
 }
