@@ -1,0 +1,35 @@
+extends ../../../../layouts/default
+
+block head
+    title Games
+
+block neck
+    link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
+
+block body
+    br
+    div.row.vertical-offset-100
+        div.col-md-8.col-md-offset-2
+            div.panel.panel-primary
+                div.panel-heading
+                    h3(class='panel-title') Rules - BubbleBattle by Arkadeo
+                div.panel-body
+                    h4 But
+                    p
+                    |  Le but de BubbleBattle est de capturer tout les enclos de la carte et ainsi de réduire à 0 le nombre de bulles de l'adversaire.
+                    h4 Comment jouer
+                    | Sélectionnez un enclos contenant des bulles. Choisissez un autre enclos du terrain, la moitié des bulles du premier enclos va s'y déplacer et le conquérir si l'enclos est vide, engager un combat s'il appartient à l'adversaire ou augmenter le nombre bulles si l'enclos vous appartient.                  
+                    h4 Début de partie
+                    | La partie commence avec 80 bulles des deux côtés. 6 enclos sont disponibles et peuvent être capturés par les deux joueurs.
+                    h4 Stratégie
+                    | Le nombre de bulles par enclos augmente de 2 votre nombre de bulles par seconde. Avoir plusieurs enclos permet donc de créer plus de bulles par secondes.
+                    p
+                    | La moitié des bulles de vos enclos partent à chaque fois. Avant d'attaquer un enclos très rempli, pensez à envoyer les troupes de plusieurs de vos enclos à faible effectif pour réduire un peu le nombre adverse de bulles et rendre la capture plus facile.
+                    h4 Fin de partie
+                    | La partie se termine lorsque tout les enclos sont possédé par l'un des joueurs.
+                    h4 Mode Blitz
+                    | Dans le Mode Blitz, le nombre de bulles produites par secondes dans les enclos passent de 2 à 8, le nombre d'enclos sur la carte passe de 8 à 6 et les bulles voyages plus vite d'un enclos à l'autre.
+                    h4 Mode HARDCORE
+                    | Dans le Mode Hardcore, les bulles sont produites 2 fois plus rapidement, le nombre d'enclos est triplé et 3/4 des moutons partent d'un enclos à l'autre. Chaque minute, toute les bulles d'un enclos au hasard sont supprimé et celui-ci redevient capturable.
+                    br
+                    img(src="/images/bubblebattle/bubblebattle.png" width="50%")
