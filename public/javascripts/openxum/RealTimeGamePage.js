@@ -23,8 +23,8 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
         row.appendTo($('#main'));
     };
 
-    var build_engine = function (namespace, mode, color) {
-        engine = new namespace.Engine(mode, color);
+    var build_engine = function (namespace, mode, color, opponent_color) {
+        engine = new namespace.Engine(mode, color, opponent_color);
     };
 
     var build_gui = function (namespace, color, game_id) {
@@ -122,7 +122,7 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
             window.location.href = '/games/play/?game=' + name;
         });
 
-        //build_engine(namespace, mode, first_color);
+        build_engine(namespace, mode, color, opponent_color);
         build_gui(namespace, color, game_id);
         //build_opponent(namespace, color, game_type, game_id, opponent_color, username, owner_id, opponent_id);
 

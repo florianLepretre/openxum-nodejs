@@ -1,5 +1,12 @@
 "use strict";
 
+Bubblebattle.blue = 'rgb(34, 167, 240)';
+Bubblebattle.red = 'rgb(242, 38, 19)';
+Bubblebattle.grey = 'rgb(200, 200, 200)';
+Bubblebattle.lightBlue = 'rgba(34, 167, 240, 0.1)';
+Bubblebattle.lightRed = 'rgba(242, 38, 19, 0.1)';
+Bubblebattle.lightGrey = 'rgba(200, 200, 200, 0.1)';
+
 Bubblebattle.Gui = function (c, e, l, g) {
 // private attributes
     var _engine = e;
@@ -16,16 +23,59 @@ Bubblebattle.Gui = function (c, e, l, g) {
 
     var opponentPresent = l;
 
-// private methods
+    var waitingCamp;
+    var waitingClick = false;
 
+// private methods
     var onClick = function(e){
         var click = getClickPosition(e);
-        alert(click.x + '   ' + click.y);
-    }
+        var camp = getClickedCamp(click);
+
+        if (waitingClick){
+            if (camp) {
+                console.log('Route de ' + waitingCamp.getColor() + ' vers ' + camp.getColor());
+            }
+            waitingClick = false;
+        }
+        else if (camp){
+            waitingCamp = camp;
+            console.log('Clic sur ' + camp.getColor());
+            waitingClick = true;
+        }
+        else {
+            waitingClick = false;
+        }
+    };
+
+    var getClickedCamp = function(click){
+        // Detect if a camp is clicked, and return it
+        for (var i=0; i<_engine.getCampsLength(); i++){
+            var camp = _engine.getCamp(i);
+            var size = camp.getSize();
+            var coords = camp.getCoordinates();
+
+            if (click.x >= coords.cX && click.x <= coords.cX + size
+                && click.y >= coords.cY && click.y <= coords.cY + size){
+                return camp;
+            }
+        }
+
+        return false;
+    };
 
     var getClickPosition = function (e) {
         var rect = canvas.getBoundingClientRect();
         return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+    };
+
+    var convertColor = function(color){
+        if (color === 'blue'){
+            return {c: Bubblebattle.blue, lc: Bubblebattle.lightBlue};
+        }
+        if (color === 'red'){
+            return {c: Bubblebattle.red, lc: Bubblebattle.lightRed};
+        }
+        return {c: Bubblebattle.grey, lc: Bubblebattle.lightGrey};
     };
 
     var roundRect = function (x, y, width, height, radius, fill, stroke) {
@@ -46,16 +96,33 @@ Bubblebattle.Gui = function (c, e, l, g) {
         context.lineTo(x, y + radius);
         context.quadraticCurveTo(x, y, x + radius, y);
         context.closePath();
-        if (fill) {
-            context.fill();
-        }
         if (stroke) {
             context.stroke();
+        }
+        if (fill) {
+            context.fill();
         }
     };
 
     var init = function () {
         
+    };
+
+    var draw_camps = function () {
+        context.lineWidth = 1;
+
+        // Draw each camps
+        for (var i=0; i<_engine.getCampsLength(); i++){
+            var camp = _engine.getCamp(i);
+            var size = camp.getSize();
+            var coordinates = camp.getCoordinates();
+            var color = convertColor(camp.getColor());
+
+            context.strokeStyle = color.c;
+            context.fillStyle = color.lc;
+            context.strokeRect(coordinates.cX, coordinates.cY, size, size);
+            context.fillRect(coordinates.cX, coordinates.cY, size, size);
+        }
     };
 
 // public methods
@@ -65,16 +132,11 @@ Bubblebattle.Gui = function (c, e, l, g) {
 
     this.draw = function () {
         // Draw background
-        context.strokeStyle = "#000000";
-        context.fillStyle = "#eeeeee";
+        context.strokeStyle = "rgba(0,0,0,0.25)";
+        context.fillStyle = "#f3f3f3";
         roundRect(0, 0, canvas.width, canvas.height, 17, true, true);
 
-
-        context.beginPath();
-        context.arc(50,50,20,0,Math.PI*2,false);
-        context.closePath();
-        context.fillStyle = 'blue';
-        context.fill();
+        draw_camps();
     };
 
     this.engine = function () {
@@ -93,6 +155,18 @@ Bubblebattle.Gui = function (c, e, l, g) {
         canvas.addEventListener("click", onClick);
 
         this.draw();
+    };
+
+    this.getWaitingCamp = function() {
+        return waitingCamp;
+    };
+
+    this.setWaitingCamp = function(c){
+        waitingCamp = c;
+    };
+
+    this.isWaitingClick = function (){
+        return waitingClick;
     };
 
     init();

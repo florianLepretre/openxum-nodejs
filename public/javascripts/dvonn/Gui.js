@@ -38,7 +38,7 @@ Dvonn.Gui = function (c, e, l, g) {
 
     this.draw = function () {
         compute_deltas();
-        context.lineWidth = 1;
+
 
         // background
         context.strokeStyle = "#000000";
