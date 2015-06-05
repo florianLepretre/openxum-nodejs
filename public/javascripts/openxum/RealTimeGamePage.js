@@ -124,18 +124,8 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
 
         build_engine(namespace, mode, color, opponent_color);
         build_gui(namespace, color, game_id);
-        //build_opponent(namespace, color, game_type, game_id, opponent_color, username, owner_id, opponent_id);
 
         set_gui();
-        //set_opponent(game_id);
-
-        /*if (opponent !== gui && engine.current_color() === opponent.color() && !opponent.is_remote()) {
-            manager.play_other(true);
-        }
-        if (replay === true) {
-            opponent.replay_game();
-        }*/
-       
     };
 
     init(namespace, n, fc, c, oc, gt, gi, m, u, oi, opi, r);
