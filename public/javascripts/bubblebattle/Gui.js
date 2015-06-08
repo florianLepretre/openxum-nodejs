@@ -6,6 +6,9 @@ Bubblebattle.grey = 'rgb(200, 200, 200)';
 Bubblebattle.lightBlue = 'rgba(34, 167, 240, 0.2)';
 Bubblebattle.lightRed = 'rgba(242, 38, 19, 0.2)';
 Bubblebattle.lightGrey = 'rgba(200, 200, 200, 0.2)';
+Bubblebattle.border = 'rgba(255, 255, 102, 0.75)'
+
+Bubblebattle.bubbleSize = 4.2;
 
 Bubblebattle.Gui = function (c, e, l, g) {
 // private attributes
@@ -19,12 +22,15 @@ Bubblebattle.Gui = function (c, e, l, g) {
     var width;
     var height;
 
+    var map, camp0, camp1, sheep;
+
     var scaleX;
     var scaleY;
 
     var opponentPresent = l;
 
-    var waitingCamp;
+    var hCamp;
+    var waitingCamp = null;
     var waitingClick = false;
 
 // private methods
@@ -34,14 +40,13 @@ Bubblebattle.Gui = function (c, e, l, g) {
         var myColor = (_color == 1)?'blue':'red';
 
         if (waitingClick){
-            if (camp && (camp != waitingCamp)) {
+            if ((camp || camp === 0) && (camp != waitingCamp)) {
                 _engine.move(waitingCamp, camp);
             }
             waitingClick = false;
         }
-        else if (camp && (camp.getColor() == myColor)){
+        else if ((camp || camp === 0) && (_engine.getCampColor(camp) == myColor)){
             waitingCamp = camp;
-            console.log('Clic sur ' + camp.getColor());
             waitingClick = true;
         }
         else {
@@ -49,17 +54,20 @@ Bubblebattle.Gui = function (c, e, l, g) {
         }
     };
 
+    var onMove = function(e){
+        var cursor = getClickPosition(e);
+        hCamp = getClickedCamp(cursor);
+    };
+
     var getClickedCamp = function(click){
         // Detect if a camp is clicked, and return it
         for (var i=0; i<_engine.getCampsLength(); i++){
-            var camp = _engine.getCamp(i);
-            var size = camp.getSize();
-            var coords = camp.getCoordinates();
-            var c = camp.getColor();
+            var size = _engine.getCampSize(i);
+            var coords = _engine.getCampCoordinates(i);
 
-            if (click.x >= coords.cX-size && click.x <= coords.cX + size
-                && click.y >= coords.cY-size && click.y <= coords.cY + size){
-                return camp;
+            if (click.x >= coords.x-size && click.x <= coords.x + size
+                && click.y >= coords.y-size && click.y <= coords.y + size){
+                return i;
             }
         }
 
@@ -81,79 +89,154 @@ Bubblebattle.Gui = function (c, e, l, g) {
         return {c: Bubblebattle.grey, lc: Bubblebattle.lightGrey};
     };
 
-    var roundRect = function (x, y, width, height, radius, fill, stroke) {
-        if (typeof stroke === "undefined") {
-            stroke = true;
-        }
-        if (typeof radius === "undefined") {
-            radius = 5;
-        }
-        context.beginPath();
-        context.moveTo(x + radius, y);
-        context.lineTo(x + width - radius, y);
-        context.quadraticCurveTo(x + width, y, x + width, y + radius);
-        context.lineTo(x + width, y + height - radius);
-        context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        context.lineTo(x + radius, y + height);
-        context.quadraticCurveTo(x, y + height, x, y + height - radius);
-        context.lineTo(x, y + radius);
-        context.quadraticCurveTo(x, y, x + radius, y);
-        context.closePath();
-        if (stroke) {
-            context.stroke();
-        }
-        if (fill) {
-            context.fill();
-        }
+    var init = function () {
+        map   = new Image();
+        camp0 = new Image();
+        camp1 = new Image();
+        sheep = new Image();
+        map.src   = '../../../images/bubblebattle/map.png';
+        camp0.src = '../../../images/bubblebattle/camp0.png';
+        camp1.src = '../../../images/bubblebattle/camp1.png';
+        sheep.src = '../../../images/bubblebattle/sheep.png';
     };
 
-    var init = function () {
+    var highlight_camps = function () {
+        if (hCamp || hCamp === 0){
+            var coords = _engine.getCampCoordinates(hCamp);
+            var size = _engine.getCampSize(hCamp);
+            context.strokeStyle = Bubblebattle.border;
+            context.strokeRect(coords.x-size, coords.y-size, 100, 60);
+        }
     };
 
     var draw_moves = function() {
+        for (var i=0 ; i< _engine.getTroopsLength();  i++){
+            for (var j=0; j<_engine.getTroopLength(i); j++){
+                var infos = _engine.getBubbleInfo(i, j);
+                context.drawImage(sheep, infos.sources.srcX, infos.sources.srcY);
+                _engine.moveBubble(i, j);
+            }
+        }
     };
 
     var draw_camps = function () {
-        context.lineWidth = 1;
-
         // Draw each camps
         for (var i=0; i<_engine.getCampsLength(); i++){
-            var camp = _engine.getCamp(i);
-            var population = camp.getPopulation();
-            var size = camp.getSize();
-            var coordinates = camp.getCoordinates();
-            var color = convertColor(camp.getColor());
+            var size = _engine.getCampSize(i);
+            var coordinates = _engine.getCampCoordinates(i);
+            var color = _engine.getCampColor(i);
 
-            context.strokeStyle = color.c;
-            context.fillStyle = color.lc;
-            context.fillRect(coordinates.cX-size, coordinates.cY-size, size*2, size*2);
+            if (color == 'blue' || color == 'red'){
+                context.drawImage(camp1, coordinates.x-size, coordinates.y-size);
+            }
+            else{
+                context.drawImage(camp0, coordinates.x-size, coordinates.y-size);
+            }
 
-            draw_population(camp.getColor(), color.c, population, coordinates.cX, coordinates.cY, size);
+            draw_population(i, color, coordinates.x, coordinates.y, size);
         }
     };
 
-    var draw_population = function (c, color, population, x, y, s) {
+    var draw_population = function (i, c, x, y, s) {
+        var population = parseInt(_engine.getCampPopulation(i));
 
-        context.fillStyle = color;
-        if (population < s){
-            context.fillRect(x-population, y-population, population*2, population*2);
-        }
-        else {
-            context.fillRect(x-s, y-s, s*2, s*2);
+        if (c != 'none'){
+            switch (population){
+                case 0:
+                    break;
+                case 1:
+                    context.drawImage(sheep, x, y);
+                    break;
+                case 2:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x, y);
+                    break;
+                case 3:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x, y);
+                    break;
+                case 4:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x, y);
+                    break;
+                case 5:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x, y);
+                    context.drawImage(sheep, x-32, y+2);
+                    break;
+                case 6:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-10, y-18);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x, y);
+                    context.drawImage(sheep, x-32, y+2);
+                    break;
+                case 7:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-10, y-18);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x+12, y-8);
+                    context.drawImage(sheep, x, y);
+                    context.drawImage(sheep, x-32, y+2);
+                    break;
+                case 8:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-10, y-18);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x+12, y-8);
+                    context.drawImage(sheep, x, y);
+                    context.drawImage(sheep, x-14, y);
+                    context.drawImage(sheep, x-32, y+2);
+                    break;
+                case 9:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-10, y-18);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x+12, y-8);
+                    context.drawImage(sheep, x-5, y-8);
+                    context.drawImage(sheep, x, y);
+                    context.drawImage(sheep, x-14, y);
+                    context.drawImage(sheep, x-32, y+2);
+                    break;
+                default:
+                    context.drawImage(sheep, x-30, y-20);
+                    context.drawImage(sheep, x+10, y-20);
+                    context.drawImage(sheep, x-10, y-18);
+                    context.drawImage(sheep, x-20, y-10);
+                    context.drawImage(sheep, x+12, y-8);
+                    context.drawImage(sheep, x-5, y-8);
+                    context.drawImage(sheep, x, y);
+                    context.drawImage(sheep, x-14, y);
+                    context.drawImage(sheep, x-32, y+2);
+                    context.drawImage(sheep, x+12, y+3);
+                    break;
+            }
         }
 
         var myColor = (_color == 1)?'blue':'red';
 
         if (c === myColor || c === 'none') {
-            context.font="bold 15px Arial";
-            context.fillStyle = color;
-            var p = parseInt(population);
-            if (p < 10){
-                context.fillText(p, x-4, y+s+15);
-            } else if (p < 100){
-                context.fillText(p, x-8, y+s+15);
+            var rgb = convertColor(c).c;
+            context.strokeStyle = rgb;
+
+            if (population < 10){
+                context.strokeText(population, x, y+s+10);
+                context.fillText(population, x, y+s+10);
+            } else if (population < 100){
+                context.strokeText(population, x-4, y+s+10);
+                context.fillText(population, x-4, y+s+10);
             } else {
-                context.fillText(p, x-12, y+s+15);
+                context.strokeText(population, x-8, y+s+10);
+                context.fillText(population, x-8, y+s+10);
             }
         }
     };
@@ -166,13 +249,12 @@ Bubblebattle.Gui = function (c, e, l, g) {
     this.draw = function () {
         context.clearRect(0,0,canvas.width, canvas.height);
 
-        // Draw background
-        context.strokeStyle = "rgba(0,0,0,0.25)";
-        context.fillStyle = "#f3f3f3";
-        roundRect(0, 0, canvas.width, canvas.height, 17, true, true);
+        context.drawImage(map, 0, 0);
 
         draw_camps();
         draw_moves();
+
+        highlight_camps();
     };
 
     this.engine = function () {
@@ -185,10 +267,15 @@ Bubblebattle.Gui = function (c, e, l, g) {
         height = canvas.height;
         width = canvas.width;
 
+        context.font="700 18px Arial";
+        context.fillStyle = '#fff';
+        context.lineWidth = 5;
+
         scaleX = width / canvas.offsetWidth;
         scaleY = height / canvas.offsetHeight;
 
         canvas.addEventListener("click", onClick);
+        canvas.addEventListener("mousemove", onMove);
 
         this.draw();
 

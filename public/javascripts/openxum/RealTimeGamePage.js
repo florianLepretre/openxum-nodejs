@@ -17,7 +17,7 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
 
         $('<canvas/>', {
             id: 'board',
-            style: 'width: 600px; height: 600px; padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto; display: block; border-radius: 15px; -moz-border-radius: 15px; box-shadow: 8px 8px 2px #aaa;'
+            style: 'width: 600px; height: 600px; padding-left: 0; padding-right: 0; margin-left: auto; margin-right: auto; display: block; box-shadow: 8px 8px 2px #aaa;'
         }).appendTo(col);
         col.appendTo(row);
         row.appendTo($('#main'));
@@ -87,11 +87,11 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
         canvas = document.getElementById("board");
         canvas_div = document.getElementById("boardDiv");
         if (canvas_div.clientHeight < canvas_div.clientWidth) {
-            canvas.height = canvas_div.clientHeight * 0.95;
-            canvas.width = canvas_div.clientHeight * 0.95;
+            canvas.height = canvas_div.clientHeight;
+            canvas.width = canvas_div.clientHeight;
         } else {
-            canvas.height = canvas_div.clientWidth * 0.95;
-            canvas.width = canvas_div.clientWidth * 0.95;
+            canvas.height = canvas_div.clientWidth;
+            canvas.width = canvas_div.clientWidth;
         }
         gui.set_canvas(canvas);
     };
