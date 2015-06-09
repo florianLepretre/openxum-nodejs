@@ -10,13 +10,13 @@ Bubblebattle.border = 'rgba(255, 255, 102, 0.75)'
 
 Bubblebattle.bubbleSize = 4.2;
 
-Bubblebattle.Gui = function (c, e, l, g) {
+Bubblebattle.Gui = function (c, e, l, g, r ) {
 // private attributes
     var that = this;
     var _engine = e;
     var _color = c;
     var _gui = g;
-
+    var _realTimePlayer = r;
     var canvas;
     var context;
     var width;
@@ -29,6 +29,7 @@ Bubblebattle.Gui = function (c, e, l, g) {
 
     var opponentPresent = l;
 
+    var flagWin = false;
     var hCamp;
     var waitingCamp = null;
     var waitingClick = false;
@@ -42,6 +43,7 @@ Bubblebattle.Gui = function (c, e, l, g) {
         if (waitingClick){
             if ((camp || camp === 0) && (camp != waitingCamp)) {
                 _engine.move(waitingCamp, camp);
+                _realTimePlayer.move(waitingCamp, camp);
             }
             waitingClick = false;
         }
@@ -121,6 +123,10 @@ Bubblebattle.Gui = function (c, e, l, g) {
                     _engine.deleteBubble(i,j);
                 }
             }
+        }
+        if( _engine.getWin() && !flagWin){
+            flagWin = true;
+            _realTimePlayer.finish();
         }
     };
 

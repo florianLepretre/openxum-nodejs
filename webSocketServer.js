@@ -96,15 +96,16 @@ exports.Server = function (app) {
         });
     };
 
-    var onFinish = function (msg) {
+    var onFinish = function (msg) { // possible problem
         if (msg.user_id in currentGames) {
+            console.log('ON SUPPRIME !!!!!!!!!!');
             var game_id = currentGames[msg.user_id].game_id;
 
             app.db.models.Game.findOne({ _id: game_id }, null,
                 { safe: true }, function (err, game) {
                     delete playingClients[msg.user_id];
                     delete currentGames[msg.user_id];
-                    if (game) {
+                    if (game && msg.move !== 'null'  ) {
                         // on ajoute le jeu à la collection GameHisto - attention le nom n'est pas unique
                         app.db.models.User.findOne({ username: msg.user_id }, null,
                             { safe: true }, function (err, userinfo) {
@@ -125,6 +126,13 @@ exports.Server = function (app) {
                     }
                 });
         }
+        var response ={
+            type : 'finish'
+
+        };
+
+        playingClients[msg.opp_id].send(JSON.stringify(response));
+
     };
 
     var onJoin = function (msg) {
@@ -161,6 +169,7 @@ exports.Server = function (app) {
         var msg = JSON.parse(message.utf8Data);
 
         if (msg.type === 'connect') {
+
             onConnect(connection, msg);
         } else if (msg.type === 'join') {
             onJoin(msg);
@@ -171,13 +180,65 @@ exports.Server = function (app) {
         } else if (msg.type === 'turn') {
             onTurn(msg);
         } else if (msg.type === 'finish') {
+            console.log('ici');
             onFinish(msg);
-        } else if (msg.type === 'info') {
+        }else if (msg.type === 'move') {
+            onMove(msg);
+        }else if (msg.type === 'collision') {
+            onCollision(msg);
+        }else if (msg.type === 'info') {
             onConnect(connection, msg);
         } else if (msg.type === 'replay') {
             onReplay(connection, msg);
+        }else if (msg.type === 'test') {
+            onTest(msg);
         }
     };
+
+    var onMove= function(msg){
+        var response = {
+            type        : 'move',
+            waitingCamp : msg.waitingCamp,
+            camp        : msg.camp
+        }
+        playingClients[msg.opp_id].send(JSON.stringify(response));
+    };
+
+
+    var onCollision= function(msg){
+        //console.log("reception de :"+ msg.colorA + " " + msg.colorB);
+        if((msg.ColorA === msg.ColorB) && msg.TypeB ==='Camp') // same color
+        {
+            // merge
+            var response ={
+                type : 'Report',
+                merge : 1,
+                TroopA : 0,
+                TroopB : msg.PopA + msg.PopB
+            };
+            console.log('envoie report a lun ');
+            playingClients[msg.user_id].send(JSON.stringify(response));
+            console.log('envoie report a lautre');
+            playingClients[msg.Opp].send(JSON.stringify(response));
+        }
+        else if (msg.ColorA != msg.ColorB) { // A attack B
+            var res = msg.PopB - msg.PopA;
+            var response ={
+                type : 'Report',
+                merge : 0,
+                TroopA : 0,
+                TroopB : res
+            };
+            console.log('envoie report a lun ');
+            playingClients[msg.user_id].send(JSON.stringify(response));
+            console.log('envoie report a lautre');
+            playingClients[msg.Opp].send(JSON.stringify(response));
+        }
+
+    };
+
+
+
 
     var onPlay = function (connection, msg) {
         playingClients[msg.user_id] = connection;
@@ -188,8 +249,9 @@ exports.Server = function (app) {
         };
 
         var response = { type: 'start' };
-
+        //console.log(msg.opponent_id+" "+playingClients);
         if (msg.opponent_id in playingClients) {
+            console.log("on envoie !!");
             playingClients[msg.user_id].send(JSON.stringify(response));
             playingClients[msg.opponent_id].send(JSON.stringify(response));
         }
@@ -197,6 +259,24 @@ exports.Server = function (app) {
             playingClients[msg.user_id].send(JSON.stringify(response));
 
         }
+/*
+        var loop = setInterval(function () {
+
+
+            var response = {
+                type: 'Pop'
+
+            };
+
+            console.log('envoie Pop a lun ');
+            playingClients[msg.user_id].send(JSON.stringify(response));
+            console.log('envoie Pop a lautre ');
+            playingClients[msg.opponent_id].send(JSON.stringify(response));
+
+        }, 1000);*/
+
+
+
     };
 
     var onTurn = function (msg) {

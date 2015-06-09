@@ -14,8 +14,10 @@ Bubblebattle.load = function (callback) {
                                         $.getScript('/javascripts/openxum/AIManager.js', function () {
                                             $.getScript('/javascripts/openxum/RealTimeGamePage.js', function () {
                                                 $.getScript('/javascripts/bubblebattle/Engine.js', function () {
-                                                    $.getScript('/javascripts/bubblebattle/Gui.js', function () {
-                                                        callback();
+                                                    $.getScript('/javascripts/bubblebattle/RealTimePlayer.js', function () {
+                                                        $.getScript('/javascripts/bubblebattle/Gui.js', function () {
+                                                            callback();
+                                                        });
                                                     });
                                                 });
                                             });

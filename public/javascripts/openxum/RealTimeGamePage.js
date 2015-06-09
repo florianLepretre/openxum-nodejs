@@ -8,6 +8,7 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
     var gui;
     var manager;
     var opponent;
+    var realTimePlayer;
 
 // private methods
 
@@ -27,30 +28,12 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
         engine = new namespace.Engine(mode, color, opponent_color);
     };
 
-    var build_gui = function (namespace, color, game_id) {
-        gui = new namespace.Gui(color, engine, game_id === '-1', opponent === gui);
+    var build_gui = function (namespace, color, game_id , r) {
+        gui = new namespace.Gui(color, engine, game_id === '-1', opponent === gui, r);
     };
 
-
-    var build_opponent = function (namespace, color, game_type, game_id, opponent_color, username, owner_id, opponent_id) {
-        if (game_type === 'remote_ai') {
-            opponent = new namespace.RestWebServicePlayer(opponent_color, engine, username);
-            opponent.set_url('http://127.0.0.1/openxum-ws-php/index.php/');
-        } else if (game_type === 'gui') {
-            opponent = gui;
-        } else if (game_type === 'ai') {
-            if (engine.get_possible_move_list) {
-                opponent = new OpenXum.MCTSPlayer(opponent_color, engine);
-            } else {
-                opponent = new namespace.RandomPlayer(opponent_color, engine);
-            }
-        } else {
-            if (username === owner_id) {
-                opponent = new namespace.RemotePlayer(opponent_color, engine, owner_id, opponent_id, game_id);
-            } else {
-                opponent = new namespace.RemotePlayer(color, engine, owner_id, opponent_id, game_id);
-            }
-        }
+    var build_realTimePlayer = function(opponent_color,engine,owner_id,opponent_id,game_id){
+        realTimePlayer = new namespace.RealTimePlayer(opponent_color,engine,owner_id,opponent_id,game_id,gui);
     };
 
     var build_manager = function (namespace) {
@@ -111,7 +94,7 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
     };
 
     var init = function (namespace, name, first_color, color, opponent_color, game_type, game_id, mode, username, owner_id, opponent_id, replay) {
-        //build_winner_modal();
+        build_winner_modal();
 
         $('<br/>').appendTo($('#main'));
 
@@ -119,11 +102,14 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
 
         $('#winnerModal .new-game-button').click(function () {
             $('#winnerModal').modal('hide');
-            window.location.href = '/games/play/?game=' + name;
+            window.location.href = '/games';
         });
 
         build_engine(namespace, mode, color, opponent_color);
-        build_gui(namespace, color, game_id);
+
+        build_realTimePlayer(opponent_color,engine,owner_id,opponent_id,game_id);
+
+        build_gui(namespace, color, game_id, realTimePlayer);
 
         set_gui();
     };

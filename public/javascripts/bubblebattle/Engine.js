@@ -3,7 +3,7 @@
 // Constants
 Bubblebattle.campSize = 50;
 Bubblebattle.bubbleSpeed = 2; // pixel / frame rate
-Bubblebattle.growSpeed = 0.2;
+Bubblebattle.growSpeed = 0.1;
 
 Bubblebattle.Bubble = function(x, y){
 // private attributes
@@ -162,14 +162,13 @@ Bubblebattle.Troop = function (c, n, coords, isrc, idest ){
         return bubbles[j].getSpeed();
     };
 
-    this.isDeletable = function(j){
+    this.getBubbleDeletable = function(j){
         return bubbles[j].getDeletable();
     };
 
     this.delBubble = function(j){
         if(bubbles[j].getDeletable()){
             bubbles.splice(j,1);
-            // attack
             if (bubbles.length == 0){
                 delete this;
             }
@@ -239,6 +238,7 @@ Bubblebattle.Camp = function(c, x, y){
 
 Bubblebattle.Engine = function (m, c, oc){
 //private attributes
+    var isWin;
     var mode;
     var color;
     var opponent_color;
@@ -256,18 +256,19 @@ Bubblebattle.Engine = function (m, c, oc){
     };
 
     var init = function(m, c, oc){
+        isWin = false;
         mode = m;
         color = (c == 1) ? 'blue': 'red';
         opponent_color = (oc == 1) ? 'blue':'red';
 
         // Set players camps
         camps[0] = new Bubblebattle.Camp('blue', 512, 178);
-        camps[1] = new Bubblebattle.Camp('red', 200, 486);
+      //  camps[1] = new Bubblebattle.Camp('red', 200, 486);
 
         // Set ohter camps neutral
-        camps[2] = new Bubblebattle.Camp('none', 270, 124);
-        camps[3] = new Bubblebattle.Camp('none', 104, 290);
-        camps[4] = new Bubblebattle.Camp('none', 500, 444);
+     //   camps[2] = new Bubblebattle.Camp('none', 270, 124);
+      //  camps[3] = new Bubblebattle.Camp('none', 104, 290);
+        camps[1] = new Bubblebattle.Camp('none', 500, 444);
 
 
         var growing = setInterval(function(){
@@ -283,9 +284,7 @@ Bubblebattle.Engine = function (m, c, oc){
         camps[d].deletePopulation(t);
         if (camps[d].getPopulation() <= 0){
             camps[d].setColor(camps[s].getColor());
-            if(checkWin()){
-                console.log('Joueur ' + color + ' a gagné !');
-            }
+            isWin = checkWin();
         }
     };
 
@@ -317,7 +316,7 @@ Bubblebattle.Engine = function (m, c, oc){
     this.getBubbleInfo = function(i, j){
         return {
             sources  : troops[i].getBubbleSrc(j),
-            deletable: troops[i].isDeletable(j)
+            deletable: troops[i].getBubbleDeletable(j)
         };
     };
 
@@ -327,6 +326,7 @@ Bubblebattle.Engine = function (m, c, oc){
 
     this.deleteBubble = function(i, j){
         troops[i].delBubble(j);
+
         var indexDest = troops[i].getIndexDest();
         if (troops[i].getColor() === camps[indexDest].getColor()){
             merge(troops[i].getIndexSrc(), 1, troops[i].getIndexDest());
@@ -337,7 +337,6 @@ Bubblebattle.Engine = function (m, c, oc){
     };
 
     this.getTroopsLength = function(){
-        // All the troops
         return troops.length;
     };
 
@@ -345,16 +344,38 @@ Bubblebattle.Engine = function (m, c, oc){
       return troops[i].getBubblesLength();
     };
 
+    this.getWin = function(){
+          return isWin;
+    };
+
     this.move = function (s, d){
 
         var destinationCoords = camps[d].getCoordinates();
 
         var t = camps[s].dividePopulation();
+        console.log(t);
         if (t > 50){
             t = 50;
         }
 
         troops.push(new Bubblebattle.Troop(color,t,camps[s].getCoordinates(),s ,d));
+
+        for (var i=0; i<troops[troops.length-1].getBubblesLength(); i++){
+            troops[troops.length-1].createBubble(i, destinationCoords.x, destinationCoords.y);
+        }
+    };
+
+    this.moveEnnemy = function (s, d){
+
+        var destinationCoords = camps[d].getCoordinates();
+
+        var t = camps[s].dividePopulation();
+        console.log(t);
+        if (t > 50){
+            t = 50;
+        }
+
+        troops.push(new Bubblebattle.Troop(opponent_color,t,camps[s].getCoordinates(),s ,d));
 
         for (var i=0; i<troops[troops.length-1].getBubblesLength(); i++){
             troops[troops.length-1].createBubble(i, destinationCoords.x, destinationCoords.y);
