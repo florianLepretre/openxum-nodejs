@@ -112,9 +112,14 @@ Bubblebattle.Gui = function (c, e, l, g) {
     var draw_moves = function() {
         for (var i=0 ; i< _engine.getTroopsLength();  i++){
             for (var j=0; j<_engine.getTroopLength(i); j++){
+                _engine.moveBubble(i, j);
+
                 var infos = _engine.getBubbleInfo(i, j);
                 context.drawImage(sheep, infos.sources.srcX, infos.sources.srcY);
-                _engine.moveBubble(i, j);
+
+                if (infos.deletable){
+                    _engine.deleteBubble(i,j);
+                }
             }
         }
     };

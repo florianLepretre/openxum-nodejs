@@ -5,18 +5,15 @@ Bubblebattle.campSize = 50;
 Bubblebattle.bubbleSpeed = 2; // pixel / frame rate
 Bubblebattle.growSpeed = 0.2;
 
-Bubblebattle.Bubble = function(c, x, y){
+Bubblebattle.Bubble = function(x, y){
 // private attributes
-    var color;
     var srcX, srcY;
     var destX, destY;
     var speedX, speedY;
     var deletable ;
-    var rap = destY/destX;
 
 // private methods
-    var init = function (c, x, y) {
-        color = c;
+    var init = function (x, y) {
         srcX = x;
         srcY = y;
         deletable = false ;
@@ -38,7 +35,7 @@ Bubblebattle.Bubble = function(c, x, y){
             speedX = (distX/z) * Bubblebattle.bubbleSpeed;
         }
         else {
-            speedX = (distX/z) * Bubblebattle.bubbleSpeed * -1;
+            speedX = -(distX/z) * Bubblebattle.bubbleSpeed;
         }
 
         if (srcY < destY){
@@ -57,12 +54,12 @@ Bubblebattle.Bubble = function(c, x, y){
         return ({destX :destX, destY : destY});
     };
 
-    this.getColor= function(){
-      return color;
-    };
-
     this.getSrc = function(){
         return({srcX: srcX, srcY: srcY});
+    };
+
+    this.getDeletable = function(){
+        return deletable;
     };
 
     this.setSrc = function(){
@@ -108,23 +105,41 @@ Bubblebattle.Bubble = function(c, x, y){
         }
     };
 
-    init(c , x ,y);
+    init(x ,y);
 };
 
-Bubblebattle.Troop = function (c, n, coords){
+Bubblebattle.Troop = function (c, n, coords, isrc, idest ){
 // private attributes
+    var color;
     var bubbles = [];
+    var indexSrc;
+    var indexDest;
 
 // private methods
-    var init = function (c, n, coords) {
+    var init = function (c, n, coords, isrc, idest) {
+        color = c;
+        indexSrc = isrc;
+        indexDest = idest;
         for (var i=0; i< n; ++i){
-            bubbles.push(new Bubblebattle.Bubble(c, coords.x , coords.y));
+            bubbles.push(new Bubblebattle.Bubble(coords.x , coords.y));
         }
     };
 
 // public methods
     this.createBubble = function (i, x, y) {
         bubbles[i].createBubble(x, y);
+    };
+
+    this.getIndexSrc = function(){
+        return indexSrc;
+    };
+
+    this.getIndexDest = function(){
+        return indexDest;
+    };
+
+    this.getColor = function () {
+        return color;
     };
 
     this.getBubblesLength = function(){
@@ -147,7 +162,20 @@ Bubblebattle.Troop = function (c, n, coords){
         return bubbles[j].getSpeed();
     };
 
-    init(c, n, coords);
+    this.isDeletable = function(j){
+        return bubbles[j].getDeletable();
+    };
+
+    this.delBubble = function(j){
+        if(bubbles[j].getDeletable()){
+            bubbles.splice(j,1);
+            // attack
+            if (bubbles.length == 0){
+                delete this;
+            }
+        }
+    };
+    init(c, n, coords, isrc , idest);
 };
 
 Bubblebattle.Camp = function(c, x, y){
@@ -252,7 +280,6 @@ Bubblebattle.Engine = function (m, c, oc){
     };
 
     var attack = function (s, t, d) {
-        console.log('attack',s,t,d);
         camps[d].deletePopulation(t);
         if (camps[d].getPopulation() <= 0){
             camps[d].setColor(camps[s].getColor());
@@ -289,14 +316,24 @@ Bubblebattle.Engine = function (m, c, oc){
 
     this.getBubbleInfo = function(i, j){
         return {
-            sources : troops[i].getBubbleSrc(j),
-            speed   : troops[i].getBubbleSpeed(j),
-            dest    : troops[i].getBubbleDest(j)
+            sources  : troops[i].getBubbleSrc(j),
+            deletable: troops[i].isDeletable(j)
         };
     };
 
     this.moveBubble = function(i, j){
         troops[i].setBubbleSrc(j);
+    };
+
+    this.deleteBubble = function(i, j){
+        troops[i].delBubble(j);
+        var indexDest = troops[i].getIndexDest();
+        if (troops[i].getColor() === camps[indexDest].getColor()){
+            merge(troops[i].getIndexSrc(), 1, troops[i].getIndexDest());
+        }
+        else {
+            attack(troops[i].getIndexSrc(), 1, troops[i].getIndexDest());
+        }
     };
 
     this.getTroopsLength = function(){
@@ -314,24 +351,14 @@ Bubblebattle.Engine = function (m, c, oc){
 
         var t = camps[s].dividePopulation();
         if (t > 50){
-            // Tout doux
             t = 50;
         }
 
-        troops.push(new Bubblebattle.Troop(color,t,camps[s].getCoordinates()));
-
-        console.log(troops[troops.length-1].getBubblesLength());
+        troops.push(new Bubblebattle.Troop(color,t,camps[s].getCoordinates(),s ,d));
 
         for (var i=0; i<troops[troops.length-1].getBubblesLength(); i++){
             troops[troops.length-1].createBubble(i, destinationCoords.x, destinationCoords.y);
         }
-
-        /*if (camps[s].getColor() == camps[d].getColor()){
-            merge(s, t, d);
-        }
-        else {
-            attack(s, t, d);
-        }*/
     };
 
     init(m, c, oc);
