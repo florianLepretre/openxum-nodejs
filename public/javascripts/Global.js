@@ -1,2 +1,2 @@
-var WebSocketURL = '192.168.22.176';
+var WebSocketURL = '127.0.0.1';
 var WebSocketPort = '3000';

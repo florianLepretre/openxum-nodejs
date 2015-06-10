@@ -22,7 +22,7 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     var width;
     var height;
 
-    var map, camp0, camp1, sheep;
+    var map, camp0, camp1, sheep, chicken;
 
     var scaleX;
     var scaleY;
@@ -96,10 +96,12 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         camp0 = new Image();
         camp1 = new Image();
         sheep = new Image();
+        chicken = new Image();
         map.src   = '../../../images/bubblebattle/map.png';
         camp0.src = '../../../images/bubblebattle/camp0.png';
         camp1.src = '../../../images/bubblebattle/camp1.png';
-        sheep.src = '../../../images/bubblebattle/sheep.png';
+        sheep.src = '../../../images/bubblebattle/sheep_solo.png';
+        chicken.src = '../../../images/bubblebattle/chicken_solo.png';
     };
 
     var highlight_camps = function () {
@@ -117,7 +119,13 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
                 _engine.moveBubble(i, j);
 
                 var infos = _engine.getBubbleInfo(i, j);
-                context.drawImage(sheep, infos.sources.srcX, infos.sources.srcY);
+                
+                if (infos.color == 'blue'){
+                    context.drawImage(sheep, infos.sources.srcX, infos.sources.srcY);
+                }
+                else {
+                    context.drawImage(chicken, infos.sources.srcX, infos.sources.srcY);   
+                }
 
                 if (infos.deletable){
                     _engine.deleteBubble(i,j);
@@ -130,14 +138,14 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         }
     };
 
-    var draw_camps = function () {
+    var draw_camps = function () {
         // Draw each camps
         for (var i=0; i<_engine.getCampsLength(); i++){
             var size = _engine.getCampSize(i);
             var coordinates = _engine.getCampCoordinates(i);
             var color = _engine.getCampColor(i);
 
-            if (color == 'blue' || color == 'red'){
+            if (color == 'blue' || color == 'red'){
                 context.drawImage(camp1, coordinates.x-size, coordinates.y-size);
             }
             else{
@@ -151,7 +159,7 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     var draw_population = function (i, c, x, y, s) {
         var population = parseInt(_engine.getCampPopulation(i));
 
-        if (c != 'none'){
+        if (c == 'blue'){
             switch (population){
                 case 0:
                     break;
@@ -229,6 +237,87 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
                     context.drawImage(sheep, x-14, y);
                     context.drawImage(sheep, x-32, y+2);
                     context.drawImage(sheep, x+12, y+3);
+                    break;
+            }
+        }
+        else if (c == 'red'){
+            switch (population){
+                case 0:
+                    break;
+                case 1:
+                    context.drawImage(chicken, x, y);
+                    break;
+                case 2:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x, y);
+                    break;
+                case 3:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x, y);
+                    break;
+                case 4:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x, y);
+                    break;
+                case 5:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x, y);
+                    context.drawImage(chicken, x-32, y+2);
+                    break;
+                case 6:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-10, y-18);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x, y);
+                    context.drawImage(chicken, x-32, y+2);
+                    break;
+                case 7:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-10, y-18);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x+12, y-8);
+                    context.drawImage(chicken, x, y);
+                    context.drawImage(chicken, x-32, y+2);
+                    break;
+                case 8:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-10, y-18);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x+12, y-8);
+                    context.drawImage(chicken, x, y);
+                    context.drawImage(chicken, x-14, y);
+                    context.drawImage(chicken, x-32, y+2);
+                    break;
+                case 9:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-10, y-18);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x+12, y-8);
+                    context.drawImage(chicken, x-5, y-8);
+                    context.drawImage(chicken, x, y);
+                    context.drawImage(chicken, x-14, y);
+                    context.drawImage(chicken, x-32, y+2);
+                    break;
+                default:
+                    context.drawImage(chicken, x-30, y-20);
+                    context.drawImage(chicken, x+10, y-20);
+                    context.drawImage(chicken, x-10, y-18);
+                    context.drawImage(chicken, x-20, y-10);
+                    context.drawImage(chicken, x+12, y-8);
+                    context.drawImage(chicken, x-5, y-8);
+                    context.drawImage(chicken, x, y);
+                    context.drawImage(chicken, x-14, y);
+                    context.drawImage(chicken, x-32, y+2);
+                    context.drawImage(chicken, x+12, y+3);
                     break;
             }
         }

@@ -21,8 +21,8 @@ Bubblebattle.Bubble = function(x, y){
 
 // public methods
     this.createBubble = function (dX, dY){
-        srcX += (Math.random()*100)-Bubblebattle.campSize;
-        srcY += (Math.random()*100)-Bubblebattle.campSize;
+        srcX += (Math.random()*50)- (Bubblebattle.campSize/2);
+        srcY += (Math.random()*50)- (Bubblebattle.campSize/2);
         destX = dX + (Math.random()*50)-(Bubblebattle.campSize/2);
         destY = dY + (Math.random()*50)-(Bubblebattle.campSize/2);
 
@@ -320,7 +320,8 @@ Bubblebattle.Engine = function (m, c, oc){
     this.getBubbleInfo = function(i, j){
         return {
             sources  : troops[i].getBubbleSrc(j),
-            deletable: troops[i].getBubbleDeletable(j)
+            deletable: troops[i].getBubbleDeletable(j),
+            color    : troops[i].getColor()
         };
     };
 
