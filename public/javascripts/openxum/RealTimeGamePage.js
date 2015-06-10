@@ -104,7 +104,7 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
             $('#winnerModal').modal('hide');
             window.location.href = '/games';
         });
-
+        console.log(color , opponent_color);
         build_engine(namespace, mode, color, opponent_color);
 
         build_realTimePlayer(opponent_color,engine,owner_id,opponent_id,game_id);

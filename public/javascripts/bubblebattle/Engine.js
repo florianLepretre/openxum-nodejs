@@ -21,10 +21,10 @@ Bubblebattle.Bubble = function(x, y){
 
 // public methods
     this.createBubble = function (dX, dY){
-        srcX += (Math.random()*60)-Bubblebattle.campSize;
-        srcY += (Math.random()*60)-Bubblebattle.campSize;
-        destX = dX;
-        destY = dY;
+        srcX += (Math.random()*100)-Bubblebattle.campSize;
+        srcY += (Math.random()*100)-Bubblebattle.campSize;
+        destX = dX + (Math.random()*50)-(Bubblebattle.campSize/2);
+        destY = dY + (Math.random()*50)-(Bubblebattle.campSize/2);
 
         var distX = Math.abs(destX-srcX);
         var distY = Math.abs(destY-srcY);
@@ -256,19 +256,23 @@ Bubblebattle.Engine = function (m, c, oc){
     };
 
     var init = function(m, c, oc){
+        console.log(c , oc);
+
         isWin = false;
         mode = m;
         color = (c == 1) ? 'blue': 'red';
+
+
         opponent_color = (oc == 1) ? 'blue':'red';
 
         // Set players camps
         camps[0] = new Bubblebattle.Camp('blue', 512, 178);
-      //  camps[1] = new Bubblebattle.Camp('red', 200, 486);
+        camps[1] = new Bubblebattle.Camp('red', 200, 486);
 
         // Set ohter camps neutral
-     //   camps[2] = new Bubblebattle.Camp('none', 270, 124);
-      //  camps[3] = new Bubblebattle.Camp('none', 104, 290);
-        camps[1] = new Bubblebattle.Camp('none', 500, 444);
+        camps[2] = new Bubblebattle.Camp('none', 270, 124);
+        camps[3] = new Bubblebattle.Camp('none', 104, 290);
+        camps[4] = new Bubblebattle.Camp('none', 500, 444);
 
 
         var growing = setInterval(function(){

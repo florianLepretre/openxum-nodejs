@@ -12,7 +12,7 @@ Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
 
 // private methods
     var init = function () {
-        _connection = new WebSocket('ws://127.0.0.1:3000');
+        _connection = new WebSocket('ws://192.168.22.176:3000');
 
         _connection.onopen = function () {
 

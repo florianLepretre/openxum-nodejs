@@ -7,21 +7,22 @@ exports.init = function (req, res) {
                 { game_id: req.param('game_id'),
                     owner_id: req.param('owner_id'),
                     opponent_id: req.param('opponent_id'),
-                    color: req.param('color') === 'blue' ? 0 : 1,
+                    color: req.param('color') === 'black' ? 1 : 0,
                     mode: req.param('mode') === 'standard' ? 0 : 1,
                     game_type: req.param('game_type'),
-                    opponent_color: req.param('color') === 'blue' ? 1 : 0,
+                    opponent_color: req.param('color') === 'black' ? 0 : 1,
                     replay: req.param('replay') ? req.param('replay') : false
                 });
+            console.log(req.param('color'));
         } else {
             res.render('games/play/bubblebattle/index',
                 { game_id: -1,
                     owner_id: -1,
                     opponent_id: -1,
-                    color: req.param('color') === 'blue' ? 0 : 1,
+                    color: req.param('color') === 'black' ? 1 : 0,
                     mode: req.param('mode') === 'standard' ? 0 : 1,
                     game_type: req.param('game_type'),
-                    opponent_color: req.param('color') === 'blue' ? 1 : 0,
+                    opponent_color: req.param('color') === 'black' ? 0 : 1,
                     replay: false
                 });
         }

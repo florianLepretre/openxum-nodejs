@@ -64,6 +64,7 @@ exports.create = function (req, res) {
                         }
                     });
             });
+
         res.redirect('/games/new/?game='  + req.param('game'));
     }
 };
