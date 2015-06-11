@@ -1,7 +1,7 @@
-// namespace Bubblebattle
-var Bubblebattle = { };
+// namespace Battlesheep
+var Battlesheep = { };
 
-Bubblebattle.load = function (callback) {
+Battlesheep.load = function (callback) {
     $.getScript('/javascripts/utils/utils.js', function () {
         $.getScript('/javascripts/MCTS/MCTS.js', function () {
             $.getScript('/javascripts/MCTS/Node.js', function () {
@@ -13,9 +13,9 @@ Bubblebattle.load = function (callback) {
                                     $.getScript('/javascripts/openxum/RestWebServicePlayer.js', function () {
                                         $.getScript('/javascripts/openxum/AIManager.js', function () {
                                             $.getScript('/javascripts/openxum/RealTimeGamePage.js', function () {
-                                                $.getScript('/javascripts/bubblebattle/Engine.js', function () {
-                                                    $.getScript('/javascripts/bubblebattle/RealTimePlayer.js', function () {
-                                                        $.getScript('/javascripts/bubblebattle/Gui.js', function () {
+                                                $.getScript('/javascripts/battlesheep/Engine.js', function () {
+                                                    $.getScript('/javascripts/battlesheep/RealTimePlayer.js', function () {
+                                                        $.getScript('/javascripts/battlesheep/Gui.js', function () {
                                                             callback();
                                                         });
                                                     });

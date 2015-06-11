@@ -55,8 +55,8 @@ exports = module.exports = function (app, passport) {
     app.get('/games/play/yinsh/rules', require('./views/games/play/yinsh/rules').init);
     app.get('/games/play/zertz', require('./views/games/play/zertz/index').init);
     app.get('/games/play/zertz/rules', require('./views/games/play/zertz/rules').init);
-    app.get('/games/play/bubblebattle', require('./views/games/play/bubblebattle/index').init);
-    app.get('/games/play/bubblebattle/rules', require('./views/games/play/bubblebattle/rules').init);
+    app.get('/games/play/battlesheep', require('./views/games/play/battlesheep/index').init);
+    app.get('/games/play/battlesheep/rules', require('./views/games/play/battlesheep/rules').init);
     app.get('/tournaments/', require('./views/tournaments/index').init);
     app.get('/players/', require('./views/players/index').init);
     app.get('/ranking/', require('./views/ranking/index').init);

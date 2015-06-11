@@ -1,6 +1,6 @@
 "use strict";
 
-Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
+Battlesheep.RealTimePlayer = function (c, e, u, o, g) {
 // private attributes
     var _that;
     var _color = c;
@@ -51,7 +51,7 @@ Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
                     user_id: _uid,
                     opponent_id: _opponentID,
                     game_id: _gameID,
-                    game_type: 'bubblebattle'
+                    game_type: 'battlesheep'
                 };
                 console.log('user'+_uid+" "+ _opponentID);
                 _connection.send(JSON.stringify(msg));
@@ -86,7 +86,7 @@ Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
     };
 
     this.get_name = function () {
-        return 'bubblebattle' ;
+        return 'battlesheep' ;
     };
 
     this.that = function (t) {

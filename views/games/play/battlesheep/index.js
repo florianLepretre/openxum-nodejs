@@ -3,7 +3,7 @@
 exports.init = function (req, res) {
     if (req.user) {
         if (req.param('game_id') !== '-1') {
-            res.render('games/play/bubblebattle/index',
+            res.render('games/play/battlesheep/index',
                 { game_id: req.param('game_id'),
                     owner_id: req.param('owner_id'),
                     opponent_id: req.param('opponent_id'),
@@ -15,7 +15,7 @@ exports.init = function (req, res) {
                 });
             console.log(req.param('color'));
         } else {
-            res.render('games/play/bubblebattle/index',
+            res.render('games/play/battlesheep/index',
                 { game_id: -1,
                     owner_id: -1,
                     opponent_id: -1,

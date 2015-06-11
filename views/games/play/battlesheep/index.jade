@@ -1,0 +1,18 @@
+extends ../../../../layouts/default
+
+block head
+    title Games
+
+block neck
+    link(rel='stylesheet', href='/views/index.min.css?#{cacheBreaker}')
+
+block body
+    script(src='/javascripts/battlesheep/Battlesheep.js')
+
+    script(language='javascript').
+        $(document).ready(function() {
+            Battlesheep.load(function() {
+                new OpenXum.RealTimeGamePage(Battlesheep, 'battlesheep', 0, #{color}, #{opponent_color}, '#{game_type}', '#{game_id}', #{mode}, '#{user.username}', '#{owner_id}', '#{opponent_id}', #{replay});
+
+            });
+        });

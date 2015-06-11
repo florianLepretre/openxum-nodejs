@@ -1,13 +1,18 @@
 "use strict";
 
-Bubblebattle.blue = 'rgb(34, 167, 240)';
-Bubblebattle.red = 'rgb(242, 38, 19)';
-Bubblebattle.grey = 'rgb(200, 200, 200)';
-Bubblebattle.border = 'rgba(255, 255, 102, 0.75)'
+// Constants
+Battlesheep.blue = 'rgb(34, 167, 240)';
+Battlesheep.red = 'rgb(242, 38, 19)';
+Battlesheep.grey = 'rgb(200, 200, 200)';
+Battlesheep.border = 'rgba(255, 255, 102, 0.75)'
 
-Bubblebattle.bubbleSize = 4.2;
+Battlesheep.sheepSize = 4.2;
 
-Bubblebattle.Gui = function (c, e, l, g, r ) {
+//////////////////////////
+//   Class: Gui
+//////////////////////////
+
+Battlesheep.Gui = function (c, e, l, g, r ) {
 // private attributes
     var that = this;
     var _engine = e;
@@ -18,25 +23,47 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     var context;
     var width;
     var height;
-
-    var map, camp0, camp1, sheep, chicken, sheep_sprite, chicken_sprite;
-
     var scaleX;
     var scaleY;
-
     var opponentPresent = l;
 
+    // images
+    var map, camp0, camp1, sheep, chicken, sheep_sprite, chicken_sprite, smoke_sprite;
+
     var myColor;
-    var flagWin = false;
+    var winFlag = false;
     var hCamp;
     var waitingCamp = null;
     var waitingClick = false;
 
 // private methods
+    var init = function () {
+        map   = new Image();
+        camp0 = new Image();
+        camp1 = new Image();
+        sheep = new Image();
+        chicken = new Image();
+        sheep_sprite = new Image();
+        chicken_sprite = new Image();
+        smoke_sprite = new Image();
+        map.src   = '../../../images/battlesheep/map.png';
+        camp0.src = '../../../images/battlesheep/camp0.png';
+        camp1.src = '../../../images/battlesheep/camp1.png';
+        sheep.src = '../../../images/battlesheep/sheep_solo.png';
+        chicken.src = '../../../images/battlesheep/chicken_solo.png';
+        sheep_sprite.src = '../../../images/battlesheep/sheep.png';
+        chicken_sprite.src = '../../../images/battlesheep/chicken.png';
+        smoke_sprite.src = '../../../images/battlesheep/smoke.png';
+    };
+
+    var getClickPosition = function (e) {
+        var rect = canvas.getBoundingClientRect();
+        return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+    };
+
     var onClick = function(e){
         var click = getClickPosition(e);
         var camp = getClickedCamp(click);
-        var myColor = (_color == 1)?'blue':'red';
 
         if (waitingClick){
             if ((camp || camp === 0) && (camp != waitingCamp)) {
@@ -60,7 +87,7 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     };
 
     var getClickedCamp = function(click){
-        // Detect if a camp is clicked, and return it
+        // Detect if a camp is clicked, then return it
         for (var i=0; i<_engine.getCampsLength(); i++){
             var size = _engine.getCampSize(i);
             var coords = _engine.getCampCoordinates(i);
@@ -70,76 +97,27 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
                 return i;
             }
         }
-
         return false;
     };
 
-    var getClickPosition = function (e) {
-        var rect = canvas.getBoundingClientRect();
-        return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
-    };
-
     var convertColor = function(color){
+        // Get rgb from color attribute
         if (color === 'blue'){
-            return Bubblebattle.blue;
+            return Battlesheep.blue;
         }
         if (color === 'red'){
-            return Bubblebattle.red;
+            return Battlesheep.red;
         }
-        return Bubblebattle.grey;
+        return Battlesheep.grey;
     };
 
-    var init = function () {
-        map   = new Image();
-        camp0 = new Image();
-        camp1 = new Image();
-        sheep = new Image();
-        chicken = new Image();
-        sheep_sprite = new Image();
-        chicken_sprite = new Image();
-        map.src   = '../../../images/bubblebattle/map.png';
-        camp0.src = '../../../images/bubblebattle/camp0.png';
-        camp1.src = '../../../images/bubblebattle/camp1.png';
-        sheep.src = '../../../images/bubblebattle/sheep_solo.png';
-        chicken.src = '../../../images/bubblebattle/chicken_solo.png';
-        sheep_sprite.src = '../../../images/bubblebattle/sheep.png';
-        chicken_sprite.src = '../../../images/bubblebattle/chicken.png';
-    };
-
-    var highlight_camps = function () {
+    var highlight_camp = function () {
+        // Highlight a camp
         if (hCamp || hCamp === 0){
             var coords = _engine.getCampCoordinates(hCamp);
             var size = _engine.getCampSize(hCamp);
-            context.strokeStyle = Bubblebattle.border;
+            context.strokeStyle = Battlesheep.border;
             context.strokeRect(coords.x-size, coords.y-size, 100, 60);
-        }
-    };
-
-    var draw_moves = function() {
-        for (var i=0 ; i< _engine.getTroopsLength();  i++){
-            for (var j=0; j<_engine.getTroopLength(i); j++){
-                
-                _engine.moveBubble(i, j);
-                _engine.newTroopFrame(i);
-
-                var infos = _engine.getBubbleInfo(i, j);
-                var frame = _engine.getTroopFrame(i);
-
-                if (infos.color == 'blue'){
-                    context.drawImage(sheep_sprite, frame*22, infos.orientation*20, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 20);
-                }
-                else {
-                    context.drawImage(chicken_sprite, frame*22, infos.orientation*22, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 22);
-                }
-
-                if (infos.deletable){
-                    _engine.deleteBubble(i,j);
-                }
-            }
-        }
-        if( _engine.getWin() && !flagWin){
-            flagWin = true;
-            _realTimePlayer.finish();
         }
     };
 
@@ -158,6 +136,11 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
             }
 
             draw_population(i, color, coordinates.x, coordinates.y, size);
+
+            if (myColor != color && _engine.isCampAttacked(i)){
+                context.drawImage(smoke_sprite, _engine.getCampFrame(i)*96, 0, 96, 94, coordinates.x-size, coordinates.y-size, 96, 94);
+                _engine.newCampFrame(i);
+            }
         }
     };
 
@@ -327,6 +310,7 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
             }
         }
 
+        // Don't show ennemy population
         if (c === myColor || c === 'none') {
             context.strokeStyle = convertColor(c);
 
@@ -343,22 +327,51 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         }
     };
 
-// public methods
-    this.color = function () {
-        return _color;
+    var draw_moves = function() {
+        // Draw moving troops
+        for (var i=0 ; i< _engine.getTroopsLength();  i++) {
+            console.log(_engine.getTroopLength(i));
+            for (var j = 0; j < _engine.getTroopLength(i); j++) {
+
+                _engine.moveTroop(i, j);
+
+                var infos = _engine.getSheepInfo(i, j);
+                var frame = _engine.getTroopFrame(i);
+
+                if (infos.color == 'blue') {
+                    context.drawImage(sheep_sprite, frame * 22, infos.orientation * 20, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 20);
+                }
+                else {
+                    context.drawImage(chicken_sprite, frame * 22, infos.orientation * 22, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 22);
+                }
+
+                _engine.newTroopFrame(i);
+
+                if (infos.deletable) {
+                    if (_engine.getTroopLength(i) <= 1) {
+                        _engine.setCampAttacked(_engine.getTroopDest(i), false);
+                    } else if (_engine.getTroopLength(i) == _engine.getTroopPopulation(i)) {
+                        _engine.setCampAttacked(_engine.getTroopDest(i), true);
+                    }
+
+                    _engine.deleteSheepFromTroop(i, j);
+                }
+            }
+        }
+        if( _engine.getWin() && !winFlag){
+            winFlag = true;
+            _realTimePlayer.finish();
+        }
     };
 
+// public methods
     this.draw = function () {
         context.clearRect(0,0,canvas.width, canvas.height);
 
         draw_camps();
         draw_moves();
 
-        highlight_camps();
-    };
-
-    this.engine = function () {
-        return _engine;
+        highlight_camp();
     };
 
     this.set_canvas = function (c) {
@@ -375,23 +388,22 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         scaleX = width / canvas.offsetWidth;
         scaleY = height / canvas.offsetHeight;
 
-        canvas.style.background = 'url(../../../images/bubblebattle/map.png)';
+        canvas.style.background = 'url(../../../images/battlesheep/map.png)';
         canvas.addEventListener("click", onClick);
         canvas.addEventListener("mousemove", onMove);
-
-        this.draw();
 
         var refresh = setInterval(function(){
             that.draw();
         }, 50);
     };
 
-    this.getWaitingCamp = function() {
-        return waitingCamp;
+    // getters
+    this.engine = function () {
+        return _engine;
     };
 
-    this.isWaitingClick = function (){
-        return waitingClick;
+    this.color = function () {
+        return _color;
     };
 
     init();
