@@ -2,7 +2,7 @@
 
 // Constants
 Bubblebattle.campSize = 50;
-Bubblebattle.bubbleSpeed = 2; // pixel / frame rate
+Bubblebattle.bubbleSpeed = 2;
 Bubblebattle.growSpeed = 0.1;
 
 Bubblebattle.Bubble = function(x, y){
@@ -11,6 +11,7 @@ Bubblebattle.Bubble = function(x, y){
     var destX, destY;
     var speedX, speedY;
     var deletable ;
+    var orientation;
 
 // private methods
     var init = function (x, y) {
@@ -21,13 +22,21 @@ Bubblebattle.Bubble = function(x, y){
 
 // public methods
     this.createBubble = function (dX, dY){
+
         srcX += (Math.random()*50)- (Bubblebattle.campSize/2);
         srcY += (Math.random()*50)- (Bubblebattle.campSize/2);
-        destX = dX + (Math.random()*50)-(Bubblebattle.campSize/2);
-        destY = dY + (Math.random()*50)-(Bubblebattle.campSize/2);
+        destX = dX + (Math.random()*50) - (Bubblebattle.campSize/2);
+        destY = dY + (Math.random()*50) - (Bubblebattle.campSize/2);
 
         var distX = Math.abs(destX-srcX);
         var distY = Math.abs(destY-srcY);
+
+        if (distX > distY){
+            orientation = (destX-srcX > 0) ? 2 : 1; 
+        }
+        else {
+            orientation = (destY-srcY > 0) ? 0 : 3;
+        }
 
         var z = Math.sqrt(distX*distX + distY*distY);
 
@@ -61,6 +70,10 @@ Bubblebattle.Bubble = function(x, y){
     this.getDeletable = function(){
         return deletable;
     };
+
+    this.getOrientation = function (){
+        return orientation;
+    }
 
     this.setSrc = function(){
         if (speedX > 0){
@@ -114,6 +127,7 @@ Bubblebattle.Troop = function (c, n, coords, isrc, idest ){
     var bubbles = [];
     var indexSrc;
     var indexDest;
+    var nFrame = 0;
 
 // private methods
     var init = function (c, n, coords, isrc, idest) {
@@ -166,6 +180,10 @@ Bubblebattle.Troop = function (c, n, coords, isrc, idest ){
         return bubbles[j].getDeletable();
     };
 
+    this.getBubbleOrientation = function(j){
+        return bubbles[j].getOrientation();
+    };
+
     this.delBubble = function(j){
         if(bubbles[j].getDeletable()){
             bubbles.splice(j,1);
@@ -174,6 +192,15 @@ Bubblebattle.Troop = function (c, n, coords, isrc, idest ){
             }
         }
     };
+
+    this.newFrame = function(){
+        nFrame = (nFrame>=2) ? 0 : nFrame + 1;
+    };
+
+    this.getFrame = function(){
+        return nFrame;
+    };
+
     init(c, n, coords, isrc , idest);
 };
 
@@ -319,15 +346,24 @@ Bubblebattle.Engine = function (m, c, oc){
 
     this.getBubbleInfo = function(i, j){
         return {
-            sources  : troops[i].getBubbleSrc(j),
-            deletable: troops[i].getBubbleDeletable(j),
-            color    : troops[i].getColor()
+            sources    : troops[i].getBubbleSrc(j),
+            deletable  : troops[i].getBubbleDeletable(j),
+            color      : troops[i].getColor(),
+            orientation: troops[i].getBubbleOrientation(j)
         };
+    };
+
+    this.getTroopFrame = function(i){
+        return troops[i].getFrame();
     };
 
     this.moveBubble = function(i, j){
         troops[i].setBubbleSrc(j);
     };
+
+    this.newTroopFrame = function(i){
+        troops[i].newFrame();
+    }
 
     this.deleteBubble = function(i, j){
         troops[i].delBubble(j);

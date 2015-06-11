@@ -98,7 +98,6 @@ exports.Server = function (app) {
 
     var onFinish = function (msg) { // possible problem
         if (msg.user_id in currentGames) {
-            console.log('ON SUPPRIME !!!!!!!!!!');
             var game_id = currentGames[msg.user_id].game_id;
 
             app.db.models.Game.findOne({ _id: game_id }, null,
@@ -180,12 +179,9 @@ exports.Server = function (app) {
         } else if (msg.type === 'turn') {
             onTurn(msg);
         } else if (msg.type === 'finish') {
-            console.log('ici');
             onFinish(msg);
         }else if (msg.type === 'move') {
             onMove(msg);
-        }else if (msg.type === 'collision') {
-            onCollision(msg);
         }else if (msg.type === 'info') {
             onConnect(connection, msg);
         } else if (msg.type === 'replay') {
@@ -205,41 +201,6 @@ exports.Server = function (app) {
     };
 
 
-    var onCollision= function(msg){
-        //console.log("reception de :"+ msg.colorA + " " + msg.colorB);
-        if((msg.ColorA === msg.ColorB) && msg.TypeB ==='Camp') // same color
-        {
-            // merge
-            var response ={
-                type : 'Report',
-                merge : 1,
-                TroopA : 0,
-                TroopB : msg.PopA + msg.PopB
-            };
-            console.log('envoie report a lun ');
-            playingClients[msg.user_id].send(JSON.stringify(response));
-            console.log('envoie report a lautre');
-            playingClients[msg.Opp].send(JSON.stringify(response));
-        }
-        else if (msg.ColorA != msg.ColorB) { // A attack B
-            var res = msg.PopB - msg.PopA;
-            var response ={
-                type : 'Report',
-                merge : 0,
-                TroopA : 0,
-                TroopB : res
-            };
-            console.log('envoie report a lun ');
-            playingClients[msg.user_id].send(JSON.stringify(response));
-            console.log('envoie report a lautre');
-            playingClients[msg.Opp].send(JSON.stringify(response));
-        }
-
-    };
-
-
-
-
     var onPlay = function (connection, msg) {
         playingClients[msg.user_id] = connection;
         currentGames[msg.user_id] = {
@@ -249,9 +210,8 @@ exports.Server = function (app) {
         };
 
         var response = { type: 'start' };
-        //console.log(msg.opponent_id+" "+playingClients);
+        console.log(msg.opponent_id+" "+playingClients);
         if (msg.opponent_id in playingClients) {
-            console.log("on envoie !!");
             playingClients[msg.user_id].send(JSON.stringify(response));
             playingClients[msg.opponent_id].send(JSON.stringify(response));
         }

@@ -28,7 +28,7 @@ Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
 
             // Messages received
             if (msg.type === 'start') {
-                console.log('ready !!!!');
+                console.log('Ready !');
             }
             if(msg.type === 'move'){
                 _engine.moveEnnemy(msg.waitingCamp,msg.camp);
@@ -78,7 +78,6 @@ Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
         };
         $('#winnerBodyText').html('<h4>The winner is !</h4>');
         $("#winnerModal").modal("show");
-        console.log('envoie');
         _connection.send(JSON.stringify(msg));
     };
 
@@ -103,7 +102,6 @@ Bubblebattle.RealTimePlayer = function (c, e, u, o, g) {
             camp        : camp
         };
 
-        console.log('envoie move');
         _connection.send(JSON.stringify(msg));
     };
 

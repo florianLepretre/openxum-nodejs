@@ -3,9 +3,6 @@
 Bubblebattle.blue = 'rgb(34, 167, 240)';
 Bubblebattle.red = 'rgb(242, 38, 19)';
 Bubblebattle.grey = 'rgb(200, 200, 200)';
-Bubblebattle.lightBlue = 'rgba(34, 167, 240, 0.2)';
-Bubblebattle.lightRed = 'rgba(242, 38, 19, 0.2)';
-Bubblebattle.lightGrey = 'rgba(200, 200, 200, 0.2)';
 Bubblebattle.border = 'rgba(255, 255, 102, 0.75)'
 
 Bubblebattle.bubbleSize = 4.2;
@@ -22,13 +19,14 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     var width;
     var height;
 
-    var map, camp0, camp1, sheep, chicken;
+    var map, camp0, camp1, sheep, chicken, sheep_sprite, chicken_sprite;
 
     var scaleX;
     var scaleY;
 
     var opponentPresent = l;
 
+    var myColor;
     var flagWin = false;
     var hCamp;
     var waitingCamp = null;
@@ -83,12 +81,12 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
 
     var convertColor = function(color){
         if (color === 'blue'){
-            return {c: Bubblebattle.blue, lc: Bubblebattle.lightBlue};
+            return Bubblebattle.blue;
         }
         if (color === 'red'){
-            return {c: Bubblebattle.red, lc: Bubblebattle.lightRed};
+            return Bubblebattle.red;
         }
-        return {c: Bubblebattle.grey, lc: Bubblebattle.lightGrey};
+        return Bubblebattle.grey;
     };
 
     var init = function () {
@@ -97,11 +95,15 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         camp1 = new Image();
         sheep = new Image();
         chicken = new Image();
+        sheep_sprite = new Image();
+        chicken_sprite = new Image();
         map.src   = '../../../images/bubblebattle/map.png';
         camp0.src = '../../../images/bubblebattle/camp0.png';
         camp1.src = '../../../images/bubblebattle/camp1.png';
         sheep.src = '../../../images/bubblebattle/sheep_solo.png';
         chicken.src = '../../../images/bubblebattle/chicken_solo.png';
+        sheep_sprite.src = '../../../images/bubblebattle/sheep.png';
+        chicken_sprite.src = '../../../images/bubblebattle/chicken.png';
     };
 
     var highlight_camps = function () {
@@ -116,15 +118,18 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     var draw_moves = function() {
         for (var i=0 ; i< _engine.getTroopsLength();  i++){
             for (var j=0; j<_engine.getTroopLength(i); j++){
+                
                 _engine.moveBubble(i, j);
+                _engine.newTroopFrame(i);
 
                 var infos = _engine.getBubbleInfo(i, j);
-                
+                var frame = _engine.getTroopFrame(i);
+
                 if (infos.color == 'blue'){
-                    context.drawImage(sheep, infos.sources.srcX, infos.sources.srcY);
+                    context.drawImage(sheep_sprite, frame*22, infos.orientation*20, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 20);
                 }
                 else {
-                    context.drawImage(chicken, infos.sources.srcX, infos.sources.srcY);   
+                    context.drawImage(chicken_sprite, frame*22, infos.orientation*22, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 22);
                 }
 
                 if (infos.deletable){
@@ -322,11 +327,8 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
             }
         }
 
-        var myColor = (_color == 1)?'blue':'red';
-
         if (c === myColor || c === 'none') {
-            var rgb = convertColor(c).c;
-            context.strokeStyle = rgb;
+            context.strokeStyle = convertColor(c);
 
             if (population < 10){
                 context.strokeText(population, x, y+s+10);
@@ -349,8 +351,6 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
     this.draw = function () {
         context.clearRect(0,0,canvas.width, canvas.height);
 
-        context.drawImage(map, 0, 0);
-
         draw_camps();
         draw_moves();
 
@@ -366,6 +366,7 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         context = c.getContext("2d");
         height = canvas.height;
         width = canvas.width;
+        myColor = (_color == 1)?'blue':'red';
 
         context.font="700 18px Arial";
         context.fillStyle = '#fff';
@@ -374,6 +375,7 @@ Bubblebattle.Gui = function (c, e, l, g, r ) {
         scaleX = width / canvas.offsetWidth;
         scaleY = height / canvas.offsetHeight;
 
+        canvas.style.background = 'url(../../../images/bubblebattle/map.png)';
         canvas.addEventListener("click", onClick);
         canvas.addEventListener("mousemove", onMove);
 
