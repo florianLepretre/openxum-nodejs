@@ -137,7 +137,7 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
 
             draw_population(i, color, coordinates.x, coordinates.y, size);
 
-            if (myColor != color && _engine.isCampAttacked(i)){
+            if (_engine.isCampAttacked(i)){
                 context.drawImage(smoke_sprite, _engine.getCampFrame(i)*96, 0, 96, 94, coordinates.x-size, coordinates.y-size, 96, 94);
                 _engine.newCampFrame(i);
             }
@@ -330,33 +330,34 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
     var draw_moves = function() {
         // Draw moving troops
         for (var i=0 ; i< _engine.getTroopsLength();  i++) {
-            console.log(_engine.getTroopLength(i));
             for (var j = 0; j < _engine.getTroopLength(i); j++) {
 
                 _engine.moveTroop(i, j);
 
-                var infos = _engine.getSheepInfo(i, j);
+                var sheep = _engine.getSheepInfo(i, j);
+                var troop = _engine.getTroopInfo(i);
                 var frame = _engine.getTroopFrame(i);
 
-                if (infos.color == 'blue') {
-                    context.drawImage(sheep_sprite, frame * 22, infos.orientation * 20, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 20);
+                if (troop.color == 'blue') {
+                    context.drawImage(sheep_sprite, frame * 22, sheep.orientation * 20, 22, 22, sheep.sources.srcX, sheep.sources.srcY, 22, 20);
                 }
                 else {
-                    context.drawImage(chicken_sprite, frame * 22, infos.orientation * 22, 22, 22, infos.sources.srcX, infos.sources.srcY, 22, 22);
+                    context.drawImage(chicken_sprite, frame * 22, sheep.orientation * 22, 22, 22, sheep.sources.srcX, sheep.sources.srcY, 22, 22);
                 }
 
-                _engine.newTroopFrame(i);
-
-                if (infos.deletable) {
+                if (sheep.deletable) {
                     if (_engine.getTroopLength(i) <= 1) {
                         _engine.setCampAttacked(_engine.getTroopDest(i), false);
-                    } else if (_engine.getTroopLength(i) == _engine.getTroopPopulation(i)) {
-                        _engine.setCampAttacked(_engine.getTroopDest(i), true);
+                    }
+                    else if ((_engine.getTroopLength(i) == _engine.getTroopPopulation(i))
+                             && (_engine.getCampColor(troop.destination) != troop.color)) {
+                        _engine.setCampAttacked(troop.destination, true);
                     }
 
                     _engine.deleteSheepFromTroop(i, j);
                 }
             }
+            _engine.newTroopFrame(i);
         }
         if( _engine.getWin() && !winFlag){
             winFlag = true;

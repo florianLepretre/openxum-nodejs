@@ -27,10 +27,10 @@ Battlesheep.Sheep = function(x, y){
 // public methods
     this.create = function (dX, dY){
         // Set a sheep at a random position
-        srcX += (Math.random()*50)- (Battlesheep.campSize/2);
-        srcY += (Math.random()*50)- (Battlesheep.campSize/2);
-        destX = dX + (Math.random()*50) - (Battlesheep.campSize/2);
-        destY = dY + (Math.random()*50) - (Battlesheep.campSize/2);
+        srcX += Math.round((Math.random()*50)- (Battlesheep.campSize/2));
+        srcY += Math.round((Math.random()*50)- (Battlesheep.campSize/2));
+        destX = (dX + (Math.random()*25) - (Battlesheep.campSize/4));
+        destY = (dY + (Math.random()*25) - (Battlesheep.campSize/4));
 
         var distX = Math.abs(destX-srcX);
         var distY = Math.abs(destY-srcY);
@@ -130,16 +130,19 @@ Battlesheep.Troop = function (c, n, coords, isrc, idest ){
     var color;
     var indexSrc;
     var indexDest;
+    var deletable;
     var nFrame;
     var sheeps = [];
 
 // private methods
     var init = function (c, n, coords, isrc, idest) {
         population = n;
-        color = c;
-        indexSrc = isrc;
-        indexDest = idest;
-        nFrame = 0;
+        color      = c;
+        indexSrc   = isrc;
+        indexDest  = idest;
+        deletable  = false;
+        nFrame     = 0;
+
         for (var i=0; i< n; ++i){
             sheeps.push(new Battlesheep.Sheep(coords.x , coords.y));
         }
@@ -158,7 +161,7 @@ Battlesheep.Troop = function (c, n, coords, isrc, idest ){
         if(sheeps[j].getDeletable()){
             sheeps.splice(j,1);
             if (sheeps.length == 0){
-                delete this;
+                deletable = true;
             }
         }
     };
@@ -182,6 +185,10 @@ Battlesheep.Troop = function (c, n, coords, isrc, idest ){
 
     this.getIndexDest = function(){
         return indexDest;
+    };
+
+    this.getDeletable = function(){
+        return deletable;
     };
 
     this.getFrame = function(){
@@ -298,7 +305,7 @@ Battlesheep.Camp = function(c, x, y){
 
 
 //////////////////////////
-//   Class: Camp
+//   Class: Engine
 //////////////////////////
 
 Battlesheep.Engine = function (m, c, oc){
@@ -409,9 +416,12 @@ Battlesheep.Engine = function (m, c, oc){
             attack(troops[i].getIndexSrc(), 1, indexDest);
         }
 
-        if (!troops[i].getSheepsLength()){
+        console.log(troops[i].getSheepsLength());
+
+        if (troops[i].getDeletable()){
             // debug here
             console.log('!');
+            troops.splice(i,1);
         }
     };
 
@@ -476,13 +486,19 @@ Battlesheep.Engine = function (m, c, oc){
         return troops[i].getFrame();
     };
 
+    this.getTroopInfo = function(i){
+        return {
+            destination: troops[i].getIndexDest(),
+            color      : troops[i].getColor()
+        }
+    };
+
     this.getSheepInfo = function(i, j){
         return {
             sources    : troops[i].getSheepSrc(j),
             deletable  : troops[i].getSheepDeletable(j),
-            color      : troops[i].getColor(),
             orientation: troops[i].getSheepOrientation(j)
-        };
+        }
     };
 
     // setters
