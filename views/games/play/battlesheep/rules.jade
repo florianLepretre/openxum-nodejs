@@ -12,24 +12,54 @@ block body
         div.col-md-8.col-md-offset-2
             div.panel.panel-primary
                 div.panel-heading
-                    h3(class='panel-title') Rules - BattleSheep by Arkadeo
+                    h3(class='panel-title') Règles - BattleSheep (by Arkadeo)
                 div.panel-body
-                    h4 But
+                    h4 But du jeu
                     p
-                    |  Le but de BattleSheep est de capturer tout les enclos de la carte et ainsi de réduire à 0 le nombre de bulles de l'adversaire.
+                        | La guerre fait rage entre les moutons et les poulets !
+                        | Le but de BattleSheep est de capturer tous les enclos du jeu, et ainsi réduire à zéro le nombre
+                        | d'enclos possédés par l'adversaire.
+
                     h4 Comment jouer
-                    | Sélectionnez un enclos contenant des bulles. Choisissez un autre enclos du terrain, la moitié des bulles du premier enclos va s'y déplacer et le conquérir si l'enclos est vide, engager un combat s'il appartient à l'adversaire ou augmenter le nombre bulles si l'enclos vous appartient.                  
-                    h4 Début de partie
-                    | La partie commence avec 80 bulles des deux côtés. 6 enclos sont disponibles et peuvent être capturés par les deux joueurs.
-                    h4 Stratégie
-                    | Le nombre de bulles par enclos augmente de 2 votre nombre de bulles par seconde. Avoir plusieurs enclos permet donc de créer plus de bulles par secondes.
                     p
-                    | La moitié des bulles de vos enclos partent à chaque fois. Avant d'attaquer un enclos très rempli, pensez à envoyer les troupes de plusieurs de vos enclos à faible effectif pour réduire un peu le nombre adverse de bulles et rendre la capture plus facile.
+                        | Sélectionnez un de vos enclos contenant des troupes.
+                        | Choisissez un autre enclos du terrain, la moitié des troupes du premier enclos va s'y déplacer
+                        | et le conquérir si l'enclos est vide, engager un combat s'il appartient à l'adversaire
+                        | ou augmenter le nombre de troupes si l'enclos vous appartient.
+                    div(style="text-align:center;width: 200px; margin:20px auto; background:rgba(0,0,0,0.1)")
+                        img(src="/images/battlesheep/camp0.png")
+                        p(style="font-style:italic;padding: 6px; background:rgba(0,0,0,0.1)") Un enclos vide
+
+                    h4 Début de partie
+                    p
+                        | Chaque joueur commence avec 1 camp peuplé de 5 troupes. 3 enclos vides sont disponibles
+                        | et peuvent être capturés par les deux joueurs. Il y a donc 5 camps au total.
+                    div(style="text-align:center;width: 150px; margin:20px auto; padding-top:10px;background:rgba(0,0,0,0.1)")
+                        img(src="/images/battlesheep/sheep_solo.png" style="margin-right:20px")
+                        img(src="/images/battlesheep/chicken_solo.png")
+                        p(style="font-style:italic;margin-top:16px; padding: 6px; background:rgba(0,0,0,0.1)") Des troupes
+
+                    h4 Stratégie
+                    p
+                        | Chaque enclos occupé par un joueur produit régulièrement des troupes (2 par secondes).
+                        | Avoir plusieurs enclos en sa possession permet donc de créer plus de troupes par seconde.
+                    p
+                        | Lors d'une capture ou d'une attaque, un rapport de force a lieu entre les troupes
+                        | attaquantes et défensive.
+                    ul Exemples
+                        li
+                            | 10 moutons attaquent un camp de 15 poules : le camps des poules n'est pas capturé,
+                            | les 10 moutons sont perdus, et il reste 5 poules dans le camp après l'attaque.
+                        li
+                            | 20 moutons attaquent un camp de 15 poules : le camps des poules est capturé et devient un camp de moutons,
+                            | les 15 poules sont supprimées, et les 5 moutons en surplus rejoignent le camp capturé après l'attaque.
+                    p
+                        | Lorsque des troupes rejoignent un camp allié, la population du camp est augmentée
+                        | d'autant d'individus que la troupe en contenait.
+                    div(style="text-align:center; max-width: 450px; margin:20px auto; background:rgba(0,0,0,0.1)")
+                        img(src="/images/battlesheep/battlesheep.png" width="100%")
+                        p(style="font-style:italic;padding: 6px; background:rgba(0,0,0,0.1)") Une partie en cours
+
                     h4 Fin de partie
-                    | La partie se termine lorsque tout les enclos sont possédé par l'un des joueurs.
-                    h4 Mode Blitz
-                    | Dans le Mode Blitz, le nombre de bulles produites par secondes dans les enclos passent de 2 à 8, le nombre d'enclos sur la carte passe de 8 à 6 et les bulles voyages plus vite d'un enclos à l'autre.
-                    h4 Mode HARDCORE
-                    | Dans le Mode Hardcore, les bulles sont produites 2 fois plus rapidement, le nombre d'enclos est triplé et 3/4 des moutons partent d'un enclos à l'autre. Chaque minute, toute les bulles d'un enclos au hasard sont supprimé et celui-ci redevient capturable.
-                    br
-                    img(src="/images/battlesheep/battlesheep.png" width="50%")
+                    p
+                        | La partie se termine lorsque l'un des joueurs possède tous les enclos. Il y a forcément un vainqueur.

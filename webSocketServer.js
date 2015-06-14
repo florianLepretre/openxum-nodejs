@@ -168,7 +168,6 @@ exports.Server = function (app) {
         var msg = JSON.parse(message.utf8Data);
 
         if (msg.type === 'connect') {
-
             onConnect(connection, msg);
         } else if (msg.type === 'join') {
             onJoin(msg);
@@ -186,8 +185,6 @@ exports.Server = function (app) {
             onConnect(connection, msg);
         } else if (msg.type === 'replay') {
             onReplay(connection, msg);
-        }else if (msg.type === 'test') {
-            onTest(msg);
         }
     };
 
@@ -219,24 +216,6 @@ exports.Server = function (app) {
             playingClients[msg.user_id].send(JSON.stringify(response));
 
         }
-/*
-        var loop = setInterval(function () {
-
-
-            var response = {
-                type: 'Pop'
-
-            };
-
-            console.log('envoie Pop a lun ');
-            playingClients[msg.user_id].send(JSON.stringify(response));
-            console.log('envoie Pop a lautre ');
-            playingClients[msg.opponent_id].send(JSON.stringify(response));
-
-        }, 1000);*/
-
-
-
     };
 
     var onTurn = function (msg) {
@@ -279,11 +258,7 @@ exports.Server = function (app) {
         }
     };
 
-//    var turn_indice = 0;
-
     var onReplay = function (connection, msg) {
-//        var turn_indice = 0;
-//        var colors = {0: 'black', 1: 'white'};
 
         app.db.models.GameHisto.findOne({ gameId: msg.game_id }, null, function (err, turns) {
             var response = {

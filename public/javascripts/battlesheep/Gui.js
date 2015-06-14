@@ -6,8 +6,6 @@ Battlesheep.red = 'rgb(242, 38, 19)';
 Battlesheep.grey = 'rgb(200, 200, 200)';
 Battlesheep.border = 'rgba(255, 255, 102, 0.75)'
 
-Battlesheep.sheepSize = 4.2;
-
 //////////////////////////
 //   Class: Gui
 //////////////////////////
@@ -330,19 +328,25 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
     var draw_moves = function() {
         // Draw moving troops
         for (var i=0 ; i< _engine.getTroopsLength();  i++) {
+
+            var troop = _engine.getTroopInfo(i);
+            var frame = _engine.getTroopFrame(i);
+
+            _engine.newTroopFrame(i);
+
             for (var j = 0; j < _engine.getTroopLength(i); j++) {
 
                 _engine.moveTroop(i, j);
 
                 var sheep = _engine.getSheepInfo(i, j);
-                var troop = _engine.getTroopInfo(i);
-                var frame = _engine.getTroopFrame(i);
 
                 if (troop.color == 'blue') {
-                    context.drawImage(sheep_sprite, frame * 22, sheep.orientation * 20, 22, 22, sheep.sources.srcX, sheep.sources.srcY, 22, 20);
+                    context.drawImage(sheep_sprite, frame * 22, sheep.orientation * 20, 22, 22,
+                                      sheep.sources.srcX, sheep.sources.srcY, 22, 20);
                 }
                 else {
-                    context.drawImage(chicken_sprite, frame * 22, sheep.orientation * 22, 22, 22, sheep.sources.srcX, sheep.sources.srcY, 22, 22);
+                    context.drawImage(chicken_sprite, frame * 22, sheep.orientation * 22, 22, 22,
+                                      sheep.sources.srcX, sheep.sources.srcY, 22, 22);
                 }
 
                 if (sheep.deletable) {
@@ -350,14 +354,16 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
                         _engine.setCampAttacked(_engine.getTroopDest(i), false);
                     }
                     else if ((_engine.getTroopLength(i) == _engine.getTroopPopulation(i))
-                             && (_engine.getCampColor(troop.destination) != troop.color)) {
+                        && (_engine.getCampColor(troop.destination) != troop.color)) {
                         _engine.setCampAttacked(troop.destination, true);
                     }
 
-                    _engine.deleteSheepFromTroop(i, j);
+                    // Break if the troop is empty after deleting a sheep
+                    if(_engine.deleteSheepFromTroop(i, j)){
+                        i--; break;
+                    }
                 }
             }
-            _engine.newTroopFrame(i);
         }
         if( _engine.getWin() && !winFlag){
             winFlag = true;
@@ -395,7 +401,7 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
 
         var refresh = setInterval(function(){
             that.draw();
-        }, 50);
+        }, 1000/20);
     };
 
     // getters

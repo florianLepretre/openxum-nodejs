@@ -69,6 +69,7 @@ Battlesheep.Sheep = function(x, y){
                 }
                 else {
                     deletable = true;
+                    delete this;
                 }
             }
             else {
@@ -78,6 +79,7 @@ Battlesheep.Sheep = function(x, y){
                 }
                 else {
                     deletable = true;
+                    delete this;
                 }
             }
         }
@@ -89,6 +91,7 @@ Battlesheep.Sheep = function(x, y){
                 }
                 else {
                     deletable = true;
+                    delete this;
                 }
             }
             else {
@@ -98,6 +101,7 @@ Battlesheep.Sheep = function(x, y){
                 }
                 else {
                     deletable = true;
+                    delete this;
                 }
             }
         }
@@ -416,13 +420,11 @@ Battlesheep.Engine = function (m, c, oc){
             attack(troops[i].getIndexSrc(), 1, indexDest);
         }
 
-        console.log(troops[i].getSheepsLength());
-
         if (troops[i].getDeletable()){
-            // debug here
-            console.log('!');
             troops.splice(i,1);
+            return true;
         }
+        return false;
     };
 
     this.newCampFrame = function(i){
@@ -489,7 +491,8 @@ Battlesheep.Engine = function (m, c, oc){
     this.getTroopInfo = function(i){
         return {
             destination: troops[i].getIndexDest(),
-            color      : troops[i].getColor()
+            color      : troops[i].getColor(),
+            deletable  : troops[i].getDeletable()
         }
     };
 
