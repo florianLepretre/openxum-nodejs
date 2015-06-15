@@ -2,13 +2,14 @@
 
 Battlesheep.RealTimePlayer = function (c, e, u, o, g) {
 // private attributes
-    var _that;
+    var _that = this;
     var _color = c;
     var _uid = u;
     var _gameID = g;
     var _opponentID = o;
     var _connection;
     var _engine = e;
+    var finish = false;
 
 // private methods
     var init = function () {
@@ -29,12 +30,25 @@ Battlesheep.RealTimePlayer = function (c, e, u, o, g) {
             // Messages received
             if (msg.type === 'start') {
                 console.log('Ready !');
+                _that.begin();
             }
-            if(msg.type === 'move'){
-                _engine.moveEnnemy(msg.waitingCamp,msg.camp);
+            else if (msg.type === 'ack') {
+                _engine.move(msg.waitingCamp,msg.camp, msg.troop);
             }
-            if(msg.type === 'finish'){
-                $('#winnerBodyText').html('<h4>The winner is !</h4>');
+            else if(msg.type === 'moveRT'){
+                _engine.moveEnnemy(msg.waitingCamp,msg.camp, msg.troop);
+            }
+            else if(msg.type === 'state'){
+                _engine.setState(msg);
+            }
+            else if(msg.type === 'ackdel'){
+                if( !finish){
+                    _engine.deleteBubble(msg.troop_id , msg.bulle_id);
+                }
+            }
+            else if(msg.type === 'finishRT'){
+                finish = true;
+                $('#winnerBodyText').html('<h4>The winner is '+ msg._uid +'</h4>');
                 $("#winnerModal").modal("show");
             }
         };
@@ -47,13 +61,12 @@ Battlesheep.RealTimePlayer = function (c, e, u, o, g) {
                 console.log('connecting ' + _uid + ' ...');
 
                 var msg = {
-                    type: 'play',
+                    type: 'playRT',
                     user_id: _uid,
                     opponent_id: _opponentID,
                     game_id: _gameID,
                     game_type: 'battlesheep'
                 };
-                console.log('user'+_uid+" "+ _opponentID);
                 _connection.send(JSON.stringify(msg));
                 clearInterval(loop);
             }
@@ -69,14 +82,24 @@ Battlesheep.RealTimePlayer = function (c, e, u, o, g) {
         return false;
     };
 
-    this.finish = function () {
+    this.begin = function(){
         var msg = {
-            type: 'finish',
+            type : 'begin',
+            user_id : _uid,
+            opp_id : _opponentID
+        };
+        _connection.send(JSON.stringify(msg));
+    };
+
+    this.finish = function () {
+        finish = true;
+        var msg = {
+            type: 'finishRT',
             user_id: _uid,
             opp_id : _opponentID,
             moves: null
         };
-        $('#winnerBodyText').html('<h4>The winner is !</h4>');
+        $('#winnerBodyText').html('<h4>The winner is ' + _uid + ' </h4>');
         $("#winnerModal").modal("show");
         _connection.send(JSON.stringify(msg));
     };
@@ -95,14 +118,52 @@ Battlesheep.RealTimePlayer = function (c, e, u, o, g) {
 
     this.move = function(waitingCamp, camp){
         var msg = {
-            type        : 'move',
+            type        : 'moveRT',
             user_id     : _uid,
             opp_id      : _opponentID,
             waitingCamp : waitingCamp,
             camp        : camp
         };
-
         _connection.send(JSON.stringify(msg));
+    };
+
+    this.ACK = function(waitingCamp, camp){
+
+        var population = _engine.getCampPopulation(waitingCamp);
+        var t = parseInt(population /2);
+
+        var msg = {
+            type        : 'ack',
+            user_id     : _uid,
+            opp_id      : _opponentID,
+            waitingCamp : waitingCamp,
+            camp        : camp,
+            troop       : t
+        };
+
+        if( !finish){
+            _connection.send(JSON.stringify(msg));
+        }
+
+    };
+
+    this.ACKDelete = function(i , j){
+        var id_dest = _engine.getTroopDest(i);
+        var color = _engine.getTroopColor(i);
+        var msg = {
+            type        : 'ackdelete',
+            user_id     : _uid,
+            opp_id      : _opponentID,
+            bulle_id    :  j,
+            troop_id    :  i,
+            camp_id     : id_dest,
+            color       : color
+        };
+
+        if (! finish){
+            _connection.send(JSON.stringify(msg));
+        }
+
     };
 
     this.engine = function () {

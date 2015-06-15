@@ -65,8 +65,7 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
 
         if (waitingClick){
             if ((camp || camp === 0) && (camp != waitingCamp)) {
-                _engine.move(waitingCamp, camp);
-                _realTimePlayer.move(waitingCamp, camp);
+                _realTimePlayer.ACK(waitingCamp, camp);
             }
             waitingClick = false;
         }
@@ -358,8 +357,12 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
                         _engine.setCampAttacked(troop.destination, true);
                     }
 
+                    if(troop.color === myColor){
+                        _realTimePlayer.ACKDelete(i,j);
+                    }
+
                     // Break if the troop is empty after deleting a sheep
-                    if(_engine.deleteSheepFromTroop(i, j)){
+                    if(_engine.deleteSheepFromTroop(i,j)){
                         i--; break;
                     }
                 }

@@ -300,6 +300,10 @@ Battlesheep.Camp = function(c, x, y){
         color = c;
     };
 
+    this.setPopulation = function(p){
+        population = p;
+    };
+
     this.setAttacked = function(bool){
         attacked = bool;
     };
@@ -336,15 +340,6 @@ Battlesheep.Engine = function (m, c, oc){
         camps[2] = new Battlesheep.Camp('none', 270, 124);
         camps[3] = new Battlesheep.Camp('none', 104, 290);
         camps[4] = new Battlesheep.Camp('none', 500, 444);
-
-        // Grow the camp each 50ms
-        var growing = setInterval(function(){
-            for (var i=0; i<camps.length; i++){
-                if (camps[i].getColor() !== 'none'){
-                    camps[i].grow();
-                }
-            }
-        }, 50);
     };
 
     var checkWin = function() {
@@ -480,6 +475,10 @@ Battlesheep.Engine = function (m, c, oc){
         return troops[i].getPopulation();
     };
 
+    this.getTroopColor = function(i){
+        return troops[i].getColor();
+    };
+
     this.getTroopDest = function(i){
         return troops[i].getIndexDest();
     };
@@ -507,6 +506,19 @@ Battlesheep.Engine = function (m, c, oc){
     // setters
     this.setCampAttacked = function(i, bool){
         camps[i].setAttacked(bool);
+    };
+
+    this.setState = function(data){
+        camps[0].setPopulation(data.C0.pop);
+        camps[0].setColor(data.C0.color);
+        camps[1].setPopulation(data.C1.pop);
+        camps[1].setColor(data.C1.color);
+        camps[2].setPopulation(data.C2.pop);
+        camps[2].setColor(data.C2.color);
+        camps[3].setPopulation(data.C3.pop);
+        camps[3].setColor(data.C3.color);
+        camps[4].setPopulation(data.C4.pop);
+        camps[4].setColor(data.C4.color);
     };
 
     init(m, c, oc);

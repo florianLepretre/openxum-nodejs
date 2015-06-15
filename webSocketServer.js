@@ -1,4 +1,6 @@
 var wss = require('websocket').server;
+var loops;
+
 
 exports.Server = function (app) {
 
@@ -9,6 +11,7 @@ exports.Server = function (app) {
         clients = { };
         playingClients = { };
         currentGames = { };
+        states ={ };
     };
 
     this.processRequest = function (request) {
@@ -96,7 +99,7 @@ exports.Server = function (app) {
         });
     };
 
-    var onFinish = function (msg) { // possible problem
+    var onFinish = function (msg) {
         if (msg.user_id in currentGames) {
             var game_id = currentGames[msg.user_id].game_id;
 
@@ -104,6 +107,44 @@ exports.Server = function (app) {
                 { safe: true }, function (err, game) {
                     delete playingClients[msg.user_id];
                     delete currentGames[msg.user_id];
+                    if (game) {
+                        // on ajoute le jeu à la collection GameHisto - attention le nom n'est pas unique
+                        app.db.models.User.findOne({ username: msg.user_id }, null,
+                            { safe: true }, function (err, userinfo) {
+                                var fieldsToSet = {
+                                    name: game.name,
+                                    game: game.game,
+                                    userCreated: { id: game.userCreated.id },
+                                    opponent: { id: game.opponent.id },
+                                    winner: { id: userinfo._id },
+                                    moves: msg.moves,
+                                    status: 'finished'
+                                };
+                                app.db.models.GameHisto.create(fieldsToSet, function (err, user) {
+                                });
+                            });
+                        game.remove(function (err) {
+                        });
+                    }
+                });
+        }
+    };
+
+    var onFinishRT = function (msg) { // possible problem
+        if (msg.user_id in currentGames) {
+            //delete states[msg.user_id];
+            //delete states[msg.opp_id];
+
+            finish = true;
+
+            var game_id = currentGames[msg.user_id].game_id;
+
+            app.db.models.Game.findOne({ _id: game_id }, null,
+                { safe: true }, function (err, game) {
+
+                    delete playingClients[msg.user_id];
+                    delete currentGames[msg.user_id];
+
                     if (game && msg.move !== 'null'  ) {
                         // on ajoute le jeu à la collection GameHisto - attention le nom n'est pas unique
                         app.db.models.User.findOne({ username: msg.user_id }, null,
@@ -126,13 +167,15 @@ exports.Server = function (app) {
                 });
         }
         var response ={
-            type : 'finish'
-
+            type : 'finishRT',
+            _uid : msg.user_id
         };
 
         playingClients[msg.opp_id].send(JSON.stringify(response));
 
     };
+
+
 
     var onJoin = function (msg) {
         app.db.models.Game.findOne({ _id: msg.game_id }, null,
@@ -175,31 +218,145 @@ exports.Server = function (app) {
             onConfirm(msg);
         } else if (msg.type === 'play') {
             onPlay(connection, msg);
+        } else if (msg.type === 'playRT') {
+            onPlayRT(connection, msg);
+        } else if (msg.type === 'begin') {
+            onBegin(msg);
         } else if (msg.type === 'turn') {
             onTurn(msg);
         } else if (msg.type === 'finish') {
             onFinish(msg);
-        }else if (msg.type === 'move') {
-            onMove(msg);
-        }else if (msg.type === 'info') {
+        } else if (msg.type === 'finishRT') {
+            onFinishRT(msg);
+        } else if (msg.type === 'moveRT') {
+            onMoveRT(msg);
+        } else if (msg.type === 'info') {
             onConnect(connection, msg);
         } else if (msg.type === 'replay') {
             onReplay(connection, msg);
+        } else if (msg.type === 'ack') {
+            onAck(msg);
+        } else if (msg.type === 'ackdelete') {
+            onAckDel(msg);
         }
     };
 
-    var onMove= function(msg){
+    var onAckDel = function(msg){
+
+        if(msg.camp_id === 0 ){
+            if(msg.color != states[msg.user_id].C0.color ){
+                states[msg.user_id].C0.pop -= 1;
+                states[msg.opp_id].C0.pop -= 1;
+                if(states[msg.user_id].C0.pop <= 0){
+                    states[msg.user_id].C0.color = msg.color;
+                    states[msg.opp_id].C0.color = msg.color;
+                }
+            }else{
+                states[msg.user_id].C0.pop += 1;
+                states[msg.opp_id].C0.pop += 1;
+            }
+        }
+        if(msg.camp_id === 1 ){
+            if(msg.color != states[msg.user_id].C1.color ){
+                states[msg.user_id].C1.pop -= 1;
+                states[msg.opp_id].C1.pop -= 1;
+                if(states[msg.user_id].C1.pop <= 0){
+                    states[msg.user_id].C1.color = msg.color;
+                    states[msg.opp_id].C1.color = msg.color;
+                }
+            }else{
+                states[msg.user_id].C1.pop += 1;
+                states[msg.opp_id].C1.pop += 1;
+            }
+
+        }
+        if(msg.camp_id === 2 ){
+            if(msg.color != states[msg.user_id].C2.color ){
+
+                states[msg.user_id].C2.pop -= 1;
+                states[msg.opp_id].C2.pop -= 1;
+                if(states[msg.user_id].C2.pop <= 0){
+                    states[msg.user_id].C2.color = msg.color;
+                    states[msg.opp_id].C2.color = msg.color;
+                }
+            }else{
+                states[msg.user_id].C2.pop += 1;
+                states[msg.opp_id].C2.pop += 1;
+            }
+
+        }
+         if(msg.camp_id === 3 ){
+            if(msg.color != states[msg.user_id].C3.color ){
+                states[msg.user_id].C3.pop -= 1;
+                states[msg.opp_id].C3.pop -= 1;
+                if(states[msg.user_id].C3.pop <= 0){
+                    states[msg.user_id].C3.color = msg.color;
+                    states[msg.opp_id].C3.color = msg.color;
+                }
+            }else{
+                states[msg.user_id].C3.pop += 1;
+                states[msg.opp_id].C3.pop += 1;
+            }
+        }
+         if(msg.camp_id === 4 ){
+            if(msg.color != states[msg.user_id].C4.color ){
+                states[msg.user_id].C4.pop -= 1;
+                states[msg.opp_id].C4.pop -= 1;
+                if(states[msg.user_id].C4.pop <= 0){
+                    states[msg.user_id].C4.color = msg.color;
+                    states[msg.opp_id].C4.color = msg.color;
+                }
+            }else{
+                states[msg.user_id].C4.pop += 1;
+                states[msg.opp_id].C4.pop += 1;
+            }
+        }
+    };
+
+
+    var onAck= function(msg){
+
+        if(msg.waitingCamp === 0 ){
+            states[msg.user_id].C0.pop -= msg.troop ;
+            states[msg.opp_id].C0.pop -= msg.troop ;
+        }
+        if(msg.waitingCamp === 1 ){
+            states[msg.user_id].C1.pop -= msg.troop ;
+            states[msg.opp_id].C1.pop -= msg.troop ;
+        }
+        if(msg.waitingCamp === 2 ){
+            states[msg.user_id].C2.pop -= msg.troop ;
+            states[msg.opp_id].C2.pop -= msg.troop ;
+        }
+        if(msg.waitingCamp === 3 ){
+            states[msg.user_id].C3.pop -= msg.troop ;
+            states[msg.opp_id].C3.pop -= msg.troop ;
+        }
+        if(msg.waitingCamp === 4 ){
+            states[msg.user_id].C4.pop -= msg.troop ;
+            states[msg.opp_id].C4.pop -= msg.troop ;
+        }
         var response = {
-            type        : 'move',
+            type        : 'ack',
             waitingCamp : msg.waitingCamp,
-            camp        : msg.camp
+            camp        : msg.camp,
+            troop       :msg.troop
+        }
+        playingClients[msg.user_id].send(JSON.stringify(response));
+        onMoveRT(msg);
+    };
+
+    var onMoveRT = function(msg){
+        var response = {
+            type        : 'moveRT',
+            waitingCamp : msg.waitingCamp,
+            camp        : msg.camp,
+            troop       : msg.troop
         }
         playingClients[msg.opp_id].send(JSON.stringify(response));
     };
 
-
     var onPlay = function (connection, msg) {
-        playingClients[msg.user_id] = connection;
         currentGames[msg.user_id] = {
             game_id: msg.game_id,
             game_type: msg.game_type,
@@ -207,7 +364,7 @@ exports.Server = function (app) {
         };
 
         var response = { type: 'start' };
-        console.log(msg.opponent_id+" "+playingClients);
+
         if (msg.opponent_id in playingClients) {
             playingClients[msg.user_id].send(JSON.stringify(response));
             playingClients[msg.opponent_id].send(JSON.stringify(response));
@@ -216,6 +373,89 @@ exports.Server = function (app) {
             playingClients[msg.user_id].send(JSON.stringify(response));
 
         }
+    };
+
+    var onPlayRT = function (connection, msg) {
+        playingClients[msg.user_id] = connection;
+        states[msg.user_id] = {
+            C0 :{pop :1, color : 'blue'} ,
+            C1 :{pop :1, color : 'red'} ,
+            C2 :{pop :15, color : 'none'} ,
+            C3 :{pop :15, color : 'none'} ,
+            C4 :{pop :15, color : 'none'}
+        };
+
+        currentGames[msg.user_id] = {
+            game_id: msg.game_id,
+            game_type: msg.game_type,
+            opponent_id: msg.opponent_id
+        };
+        finish = false;
+        var response = { type: 'start' };
+
+        if (msg.opponent_id in playingClients) {
+            playingClients[msg.user_id].send(JSON.stringify(response));
+            playingClients[msg.opponent_id].send(JSON.stringify(response));
+        }
+        if (msg.type_of_game === 'offline') {
+            playingClients[msg.user_id].send(JSON.stringify(response));
+
+        }
+
+    };
+
+    var mainLoop = function (msg, p){
+        if(states[msg.user_id]){
+            var state = {
+                type: 'state',
+                C0 : states[msg.user_id].C0,
+                C1 : states[msg.user_id].C1,
+                C2 : states[msg.user_id].C2,
+                C3 : states[msg.user_id].C3,
+                C4 : states[msg.user_id].C4
+            };
+        }
+
+        if(playingClients[msg.user_id])
+            playingClients[msg.user_id].send(JSON.stringify(state));
+        if(playingClients[msg.opp_id])
+            playingClients[msg.opp_id].send(JSON.stringify(state));
+
+        return p;
+    };
+
+    var growLoop = function(msg, p){
+        states[msg.user_id].C0.pop += 0.1;
+        states[msg.user_id].C1.pop += 0.1;
+
+        if( states[msg.user_id].C2.color != 'none'){
+            states[msg.user_id].C2.pop += 0.1;
+        }
+        if( states[msg.user_id].C3.color != 'none'){
+            states[msg.user_id].C3.pop += 0.1;
+        }
+        if( states[msg.user_id].C4.color != 'none'){
+            states[msg.user_id].C4.pop += 0.1;
+        }
+
+        return p;
+    };
+
+    var onBegin = function(msg){
+
+        var loop = setInterval(function () {
+            var end = mainLoop(msg, finish);
+            if (end){
+                clearInterval(loop);
+            }
+        }, 100);
+
+        var grow = setInterval(function () {
+            var end = growLoop(msg, finish);
+            if (end){
+                clearInterval(grow);
+            }
+        }, 50);
     };
 
     var onTurn = function (msg) {
@@ -258,7 +498,11 @@ exports.Server = function (app) {
         }
     };
 
+//    var turn_indice = 0;
+
     var onReplay = function (connection, msg) {
+//        var turn_indice = 0;
+//        var colors = {0: 'black', 1: 'white'};
 
         app.db.models.GameHisto.findOne({ gameId: msg.game_id }, null, function (err, turns) {
             var response = {
@@ -273,6 +517,8 @@ exports.Server = function (app) {
     var clients;
     var playingClients;
     var currentGames;
+    var states;
+    var finish;
 
     this.init(app);
 }
