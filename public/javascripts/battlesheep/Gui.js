@@ -3,7 +3,7 @@
 // Constants
 Battlesheep.blue = 'rgb(34, 167, 240)';
 Battlesheep.red = 'rgb(242, 38, 19)';
-Battlesheep.grey = 'rgb(200, 200, 200)';
+Battlesheep.grey = 'rgb(180, 180, 180)';
 Battlesheep.border = 'rgba(255, 255, 102, 0.75)'
 
 //////////////////////////
@@ -27,6 +27,9 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
 
     // images
     var map, camp0, camp1, sheep, chicken, sheep_sprite, chicken_sprite, smoke_sprite;
+
+    // audio
+    var sheep_sound, chicken_sound, lose_sound, ambiance_sound;
 
     var myColor;
     var winFlag = false;
@@ -52,6 +55,20 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
         sheep_sprite.src = '../../../images/battlesheep/sheep.png';
         chicken_sprite.src = '../../../images/battlesheep/chicken.png';
         smoke_sprite.src = '../../../images/battlesheep/smoke.png';
+
+        sheep_sound = document.createElement('audio');
+        sheep_sound.setAttribute('src', '../../../javascripts/battlesheep/sounds/sheep.mp3');
+
+        chicken_sound = document.createElement('audio');
+        chicken_sound.setAttribute('src', '../../../javascripts/battlesheep/sounds/chicken.mp3');
+
+        lose_sound = document.createElement('audio');
+        lose_sound.setAttribute('src', '../../../javascripts/battlesheep/sounds/lose.mp3');
+
+        ambiance_sound = document.createElement('audio');
+        ambiance_sound.setAttribute('src', '../../../javascripts/battlesheep/sounds/ambiance.mp3');
+        ambiance_sound.setAttribute('loop', 'loop');
+        ambiance_sound.play();
     };
 
     var getClickPosition = function (e) {
@@ -66,6 +83,12 @@ Battlesheep.Gui = function (c, e, l, g, r ) {
         if (waitingClick){
             if ((camp || camp === 0) && (camp != waitingCamp)) {
                 _realTimePlayer.ACK(waitingCamp, camp);
+                if (_engine.getCampColor(waitingCamp) === 'blue') {
+                    sheep_sound.play();
+                }
+                else {
+                    chicken_sound.play();
+                }
             }
             waitingClick = false;
         }

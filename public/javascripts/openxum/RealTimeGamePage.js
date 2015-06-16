@@ -79,20 +79,6 @@ OpenXum.RealTimeGamePage = function (namespace, n, fc, c, oc, gt, gi, m, u, oi, 
         gui.set_canvas(canvas);
     };
 
-    var set_opponent = function (game_id) {
-        if (game_id !== '-1') {
-            opponent.set_manager(manager);
-            opponent.set_gui(gui);
-        } else {
-            if (opponent !== gui) {
-                opponent.set_level(manager.load_level())
-            }
-            if (opponent.is_remote()) {
-                opponent.set_manager(manager);
-            }
-        }
-    };
-
     var init = function (namespace, name, first_color, color, opponent_color, game_type, game_id, mode, username, owner_id, opponent_id, replay) {
         build_winner_modal();
 
